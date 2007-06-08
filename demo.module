@@ -431,6 +431,11 @@ function demo_set_info($values = null) {
       drupal_set_message(t('Dump filename %title must contain alphanumeric characters, dots, dashes and underscores only. Other characters, including blanks (spaces), are not allowed.', array('%title' => $values['filename'])), 'error');
       return false;
     }
+
+    // parse_ini_file() doesn't allow certain characters in description
+    $s = array("\r\n", "\r", "\n", '"');
+    $r = array(' ', ' ', ' ', "'");
+    $values['description'] = str_replace($s, $r, $values['description']);
     
     // Parse values
     $infos = array();

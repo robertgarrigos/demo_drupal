@@ -14,14 +14,14 @@ function demo_install() {
   
   // Create some demonstration users.
   $role = array_keys(user_roles(), 'demo');
-  $domain = str_replace(array('http://', '/'), '', $base_url);
+  $url = parse_url($base_url);
   $usernames = array('demo1', 'demo2', 'demo3');
   
   foreach ($usernames as $name) {
     $values = array(
       'name' => $name,
       'pass' => $name,
-      'mail' => $name .'@'. $domain,
+      'mail' => $name .'@'. $url['host'],
       'roles' => $role,
     );
     drupal_execute('user_register', $values);

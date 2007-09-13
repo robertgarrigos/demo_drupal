@@ -4,7 +4,7 @@
 /**
  * Dump active database.
  */
-function demo_dump_db($filename) {
+function demo_dump_db($filename, $exclude = array()) {
   // Make sure we have permission to save our backup file.
   if (!file_check_directory(dirname($filename), FILE_CREATE_DIRECTORY)) {
     return FALSE;
@@ -21,7 +21,9 @@ function demo_dump_db($filename) {
     fwrite($fp, $header);
 
     foreach (demo_enum_tables() as $table) {
-      fwrite($fp, _demo_dump_table($table));
+      if (!in_array($table, $exclude)) {
+        fwrite($fp, _demo_dump_table($table));
+      }
     }
 
     fclose($fp);
@@ -58,55 +60,60 @@ function _demo_dump_table($table) {
   $output .= "-- Dumping data for table '$table'\n";
   $output .= "--\n\n";
   
-  // Dump table data.
+  // Dump table data
   $result = db_query("SELECT * FROM %s", $table);
 
-  // Get table fields.
-  $fields = _demo_get_fields($result);
-  $num_fields = count($fields);
+  if (db_num_rows($result)) {
+    // Get table fields.
+    $fields = _demo_get_fields($result);
+    $num_fields = count($fields);
 
-  // Escape backslashes, PHP code, special chars
-  $search = array('\\', "'", "\x00", "\x0a", "\x0d", "\x1a");
-  $replace = array('\\\\', "''", '\0', '\n', '\r', '\Z');
+    // Escape backslashes, PHP code, special chars
+    $search = array('\\', "'", "\x00", "\x0a", "\x0d", "\x1a");
+    $replace = array('\\\\', "''", '\0', '\n', '\r', '\Z');
 
-  while ($row = db_fetch_array($result)) {
-    $i = 0;
-    $values = array();
-    foreach ($row as $value) {
-      // NULL
-      if (!isset($value) || is_null($value)) {
-        $values[] = 'NULL';
-      }
-      // A number
-      // timestamp is numeric on some MySQL 4.1, BLOBs are sometimes numeric
-      else if ($fields['meta'][$i]->numeric
-        && $fields['meta'][$i]->type != 'timestamp'
-        && !($fields['meta'][$i]->blob)) {
-        $values[] = $value;
-      }
-      // A binary field
-      // Note: with mysqli, under MySQL 4.1.3, we get the flag
-      // "binary" for those field types (I don't know why)
-      else if (stristr($fields['flags'][$i], 'binary')
-        && $fields['meta'][$i]->type != 'datetime'
-        && $fields['meta'][$i]->type != 'date'
-        && $fields['meta'][$i]->type != 'time'
-        && $fields['meta'][$i]->type != 'timestamp') {
-        // Empty blobs need to be different, but '0' is also empty :-(
-        if (empty($value) && $value != '0') {
-            $values[] = "''";
-        } else {
-            $values[] = '0x' . bin2hex($value);
+    while ($row = db_fetch_array($result)) {
+      $i = 0;
+      $values = array();
+      foreach ($row as $value) {
+        // NULL
+        if (!isset($value) || is_null($value)) {
+          $values[] = 'NULL';
         }
+        // A number
+        // timestamp is numeric on some MySQL 4.1, BLOBs are sometimes numeric
+        else if ($fields['meta'][$i]->numeric
+          && $fields['meta'][$i]->type != 'timestamp'
+          && !($fields['meta'][$i]->blob)) {
+          $values[] = $value;
+        }
+        // A binary field
+        // Note: with mysqli, under MySQL 4.1.3, we get the flag
+        // "binary" for those field types (I don't know why)
+        else if (stristr($fields['flags'][$i], 'binary')
+          && $fields['meta'][$i]->type != 'datetime'
+          && $fields['meta'][$i]->type != 'date'
+          && $fields['meta'][$i]->type != 'time'
+          && $fields['meta'][$i]->type != 'timestamp') {
+          // Empty blobs need to be different, but '0' is also empty :-(
+          if (empty($value) && $value != '0') {
+              $values[] = "''";
+          } else {
+              $values[] = '0x' . bin2hex($value);
+          }
+        }
+        // Something else -> treat as a string
+        else {
+          $values[] = "'". str_replace($search, $replace, $value) ."'";
+        }
+        $i++;
       }
-      // Something else -> treat as a string
-      else {
-        $values[] = "'". str_replace($search, $replace, $value) ."'";
-      }
-      $i++;
+      $output .= "INSERT INTO `$table` VALUES (". implode(', ', $values) . ");\n";
     }
-    $output .= "INSERT INTO `$table` VALUES (". implode(', ', $values) . ");\n";
+
+    $output .= "\n";
   }
+
   return $output;
 }
 

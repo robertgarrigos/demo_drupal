@@ -247,7 +247,8 @@ function demo_dump_submit($form_id, $values) {
 
   // Perform dump
   $fileconfig = demo_get_fileconfig($info['filename']);
-  demo_dump_db($fileconfig['sqlfile']);
+  $exclude = array(db_prefix_tables('{watchdog}'));
+  demo_dump_db($fileconfig['sqlfile'], $exclude);
   
   drupal_goto('admin/settings/demo/manage');
 }
@@ -296,57 +297,61 @@ function demo_reset_now() {
   return $form;
 }
 
-function demo_reset($filename = 'demo_site', $verbose = true) {
+function demo_reset($filename = 'demo_site', $verbose = TRUE) {
   // Load any database information in front of reset.
   $demo_dump_cron = variable_get('demo_dump_cron', $filename);
   $fileconfig = demo_get_fileconfig($filename);
 
-  if (file_exists($fileconfig['sqlfile'])) {
-    if ($fp = fopen($fileconfig['sqlfile'], 'r')) {
-      // Drop all tables.
-      foreach (demo_enum_tables() as $table) {
+  if (file_exists($fileconfig['sqlfile']) && $fp = fopen($fileconfig['sqlfile'], 'r')) {
+    // Drop all tables (except watchdog)
+    $dt_watchdog = db_prefix_tables('{watchdog}');
+    foreach (demo_enum_tables() as $table) {
+      if ($table != $dt_watchdog) {
         db_query("DROP TABLE %s", $table);
       }
-      
-      // Load data from snapshot
-      $query = NULL;
-      $count = 0;
-      while (!feof($fp)) {
-        $line = fgets($fp, 8192);
-        if ($line && strncmp($line, '--', 2) && strncmp($line, '#', 1)) {
-          $query .= $line;
-          if (strpos($line, ';')) {
-            if (_db_query($query, FALSE)) {
-              ++$count;
+    }
+
+    // Load data from snapshot
+    $query = '';
+    $success = TRUE;
+    while (!feof($fp)) {
+      $line = fgets($fp, 16384);
+      if ($line && $line != "\n" && strncmp($line, '--', 2) && strncmp($line, '#', 1)) {
+        $query .= $line;
+        if (substr($line, -2) == ";\n") {
+          if (!_db_query($query, FALSE)) {
+            if ($verbose) {
+              // Don't use t() here, as the locale_* tables might not (yet) exist.
+              drupal_set_message(strtr('Query failed: %query', array('%query' => $query)), 'error');
             }
-            else {
-              if ($verbose) {
-                drupal_set_message(t('Query failed: %query', array('%query' => $query)), 'error');
-              }
-            }
-            $query = NULL;
+            $success = FALSE;
           }
+          $query = '';
         }
       }
-      fclose($fp);
-      
-      // Reset default dump to load on cron.
-      variable_set('demo_dump_cron', $demo_dump_cron);
-      
-      if ($verbose) {
-        drupal_set_message(t('Succesfully ran !query from dump file %filename.', array('!query' => format_plural($count, '1 query', '@count queries'), '%filename' => $fileconfig['sqlfile'])));
-      }
+    }
+    fclose($fp);
+
+    if ($success) {
+      $message = t('Succesfully restored database from %filename.', array('%filename' => $fileconfig['sqlfile']));
     }
     else {
-      if ($verbose) {
-        drupal_set_message(t('Unable to open dump file %filename.', array('%filename' => $fileconfig['sqlfile'])), 'error');
-      }
+      $message = t('Failed restoring database from %filename.', array('%filename' => $fileconfig['sqlfile']));
     }
+    if ($verbose) {
+      drupal_set_message($message);
+    }
+    watchdog('demo', $message, $success ? WATCHDOG_NOTICE : WATCHDOG_ERROR);
+
+    // Reset default dump to load on cron.
+    variable_set('demo_dump_cron', $demo_dump_cron);
   }
   else {
+    $message = t('Unable to open dump file %filename.', array('%filename' => $fileconfig['sqlfile']));
     if ($verbose) {
-      drupal_set_message(t('Dump file %filename does not exist.', array('%filename' => $fileconfig['sqlfile'])), 'error');
+      drupal_set_message($message, 'error');
     }
+    watchdog('demo', $message, WATCHDOG_ERROR);
   }
 }
 

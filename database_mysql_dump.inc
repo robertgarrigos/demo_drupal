@@ -11,12 +11,10 @@ function demo_dump_db($filename, $exclude = array()) {
   }
 
   if ($fp = fopen($filename, 'wb')) {
-    $database = _demo_get_database();
-
     $header  = "-- Demo.module database dump\n";
     $header .= "-- http://drupal.org/project/demo\n";
     $header .= "--\n";
-    $header .= "-- Database: $database\n";
+    $header .= "-- Database: ". _demo_get_database() ."\n";
     $header .= "-- Date: ". format_date(time(), 'large') ."\n\n";
     fwrite($fp, $header);
 
@@ -72,9 +70,15 @@ function _demo_dump_table($table) {
     $search = array('\\', "'", "\x00", "\x0a", "\x0d", "\x1a");
     $replace = array('\\\\', "''", '\0', '\n', '\r', '\Z');
 
+    $insert_cmd = "INSERT INTO `$table` VALUES\n";
+    $insert_buffer = '';
+    $current_row = 0;
+    $query_size = 0;
+
     while ($row = db_fetch_array($result)) {
-      $i = 0;
+      $current_row++;
       $values = array();
+      $field = 0;
       foreach ($row as $value) {
         // NULL
         if (!isset($value) || is_null($value)) {
@@ -82,19 +86,19 @@ function _demo_dump_table($table) {
         }
         // A number
         // timestamp is numeric on some MySQL 4.1, BLOBs are sometimes numeric
-        else if ($fields['meta'][$i]->numeric
-          && $fields['meta'][$i]->type != 'timestamp'
-          && !($fields['meta'][$i]->blob)) {
+        else if ($fields['meta'][$field]->numeric
+          && $fields['meta'][$field]->type != 'timestamp'
+          && !($fields['meta'][$field]->blob)) {
           $values[] = $value;
         }
         // A binary field
         // Note: with mysqli, under MySQL 4.1.3, we get the flag
         // "binary" for those field types (I don't know why)
-        else if (stristr($fields['flags'][$i], 'binary')
-          && $fields['meta'][$i]->type != 'datetime'
-          && $fields['meta'][$i]->type != 'date'
-          && $fields['meta'][$i]->type != 'time'
-          && $fields['meta'][$i]->type != 'timestamp') {
+        else if (stristr($fields['flags'][$field], 'binary')
+          && $fields['meta'][$field]->type != 'datetime'
+          && $fields['meta'][$field]->type != 'date'
+          && $fields['meta'][$field]->type != 'time'
+          && $fields['meta'][$field]->type != 'timestamp') {
           // Empty blobs need to be different, but '0' is also empty :-(
           if (empty($value) && $value != '0') {
               $values[] = "''";
@@ -106,12 +110,29 @@ function _demo_dump_table($table) {
         else {
           $values[] = "'". str_replace($search, $replace, $value) ."'";
         }
-        $i++;
+        $field++;
       }
-      $output .= "INSERT INTO `$table` VALUES (". implode(', ', $values) . ");\n";
+
+      if ($current_row == 1) {
+        $insert_buffer = $insert_cmd . '('. implode(', ', $values) . ')';
+      }
+      else {
+        $insert_buffer = '('. implode(', ', $values) . ')';
+        if ($query_size + strlen($insert_buffer) > 50000) {
+          $output .= ";\n";
+          $current_row = 1;
+          $query_size = 0;
+          $insert_buffer = $insert_cmd . $insert_buffer;
+        }
+      }
+      $query_size += strlen($insert_buffer);
+
+      $output .= ($current_row == 1 ? '' : ",\n") . $insert_buffer;
     }
 
-    $output .= "\n";
+    if ($current_row > 0) {
+      $output .= ";\n";
+    }
   }
 
   return $output;

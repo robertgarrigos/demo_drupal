@@ -145,7 +145,7 @@ function demo_admin_settings() {
     '#title' => t('Automatically reset site every'),
     '#default_value' => variable_get('demo_reset_interval', 0),
     '#options' => $period,
-    '#description' => t('Select how often this demonstration site is automatically resetted. Ensure that you have chosen a snapshot for cron runs in <a href="!manage">Manage snapshots</a> first. <strong>Note:</strong> This requires cron to run at least within this interval.', array('!manage' => url('admin/settings/demo/manage'))),
+    '#description' => t('Select how often this demonstration site is automatically reset. Ensure that you have chosen a snapshot for cron runs in <a href="!manage">Manage snapshots</a> first. <strong>Note:</strong> This requires cron to run at least within this interval.', array('!manage' => url('admin/settings/demo/manage'))),
   );
   
   $form['dump']['path'] = array(

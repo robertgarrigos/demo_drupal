@@ -164,12 +164,14 @@ function demo_admin_settings() {
 
 function demo_admin_settings_submit($form_id, $values) {
   if (!file_check_directory($values['path'], FILE_CREATE_DIRECTORY)) {
-    drupal_set_message(t('Dump could not be created. The directory %directory has not been properly configured.', array('%directory' => $values['path'])), 'error');
+    form_set_error('path', t('The snapshot directory %directory could not be created.', array('%directory' => $values['path'])));
+    return FALSE;
   }
   else {
     variable_set('demo_dump_path', $values['path']);
   }
   variable_set('demo_reset_interval', $values['interval']);
+  drupal_set_message(t('The configuration options have been saved.'));
 }
 
 function demo_manage() {

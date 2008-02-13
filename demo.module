@@ -3,9 +3,7 @@
 
 /**
  * @file
- * Demonstration Site
- * by Daniel Kudwien, Stefan Kudwien
- * developed by UNLEASHED MIND - www.unleashedmind.com
+ * Demonstration Site module
  */
 
 define('DEMO_DUMP_VERSION', '1.1');
@@ -200,7 +198,6 @@ function demo_manage_submit($form_id, $values) {
       break;
     
     case t('Delete selected snapshot'):
-    default:
       $files = demo_get_fileconfig($values['filename']);
       unlink($files['sqlfile']);
       unlink($files['infofile']);

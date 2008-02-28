@@ -6,6 +6,8 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 5.x-1.x, xxxx-xx-xx
 ------------------------
+by smk-ka: Fixed the generation of the table list for multiple database
+  prefixes.
 
 
 Demo 5.x-1.3, 2008-02-24

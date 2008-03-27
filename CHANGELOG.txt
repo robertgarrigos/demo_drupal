@@ -6,6 +6,7 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 5.x-1.x, xxxx-xx-xx
 ------------------------
+by smk-ka: Added MySQLi support (backported from #226135).
 by smk-ka: Fixed the generation of the table list for multiple database
   prefixes.
 

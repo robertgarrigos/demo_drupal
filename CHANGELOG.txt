@@ -2,6 +2,10 @@
 
 Demo 6.x-1.x, xxxx-xx-xx
 ------------------------
+#226135 by smk-ka:
+  - Added MySQLi support.
+  - Setting SQL_MODE for new dumps to avoid generating auto values when
+    encountering a zero value for a serial field.
 by smk-ka: Fixed the generation of the table list for multiple database
   prefixes.
 

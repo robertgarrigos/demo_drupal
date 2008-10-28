@@ -21,6 +21,8 @@ function demo_dump_db($filename, $exclude = array()) {
     $header .= "--\n";
     $header .= "-- Database: ". _demo_get_database() ."\n";
     $header .= "-- Date: ". format_date(time(), 'large') ."\n";
+    // Temporarily disable foreign key checks for the time of import.
+    $header .= "SET FOREIGN_KEY_CHECKS = 0;\n";
     fwrite($fp, $header);
 
     foreach (demo_enum_tables() as $table) {
@@ -32,6 +34,9 @@ function demo_dump_db($filename, $exclude = array()) {
         fwrite($fp, _demo_dump_table_data($table));
       }
     }
+
+    // Re-enable foreign key checks.
+    fwrite($fp, "\nSET FOREIGN_KEY_CHECKS = 1;\n");
 
     fclose($fp);
     return TRUE;

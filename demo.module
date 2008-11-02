@@ -18,11 +18,10 @@ function demo_perm() {
  */
 function demo_menu($may_cache) {
   $items = array();
-  
   if ($may_cache) {
     $admin_access = user_access('administer demo settings');
     $items[] = array(
-      'path' => 'admin/settings/demo',
+      'path' => 'admin/build/demo',
       'title' => t('Demonstration site'),
       'description' => t('Administer reset interval, create new dumps and manually reset this site.'),
       'callback' => 'drupal_get_form',
@@ -30,13 +29,13 @@ function demo_menu($may_cache) {
       'access' => $admin_access,
     );
     $items[] = array(
-      'path' => 'admin/settings/demo/maintenance',
+      'path' => 'admin/build/demo/maintenance',
       'title' => t('Status'),
       'type' => MENU_DEFAULT_LOCAL_TASK,
       'weight' => 0,
     );
     $items[] = array(
-      'path' => 'admin/settings/demo/manage',
+      'path' => 'admin/build/demo/manage',
       'title' => t('Manage snapshots'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('demo_manage'),
@@ -45,7 +44,7 @@ function demo_menu($may_cache) {
       'weight' => 1,
     );
     $items[] = array(
-      'path' => 'admin/settings/demo/dump',
+      'path' => 'admin/build/demo/dump',
       'title' => t('Create snapshot'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('demo_dump'),
@@ -54,7 +53,7 @@ function demo_menu($may_cache) {
       'weight' => 2,
     );
     $items[] = array(
-      'path' => 'admin/settings/demo/reset',
+      'path' => 'admin/build/demo/reset',
       'title' => t('Reset site'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('demo_reset_confirm'),
@@ -70,10 +69,12 @@ function demo_menu($may_cache) {
       'type' => MENU_CALLBACK,
     );
   }
-  
   return $items;
 }
 
+/**
+ * Implementation of hook_block().
+ */
 function demo_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
@@ -90,6 +91,7 @@ function demo_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 function demo_reset_now() {
+  $form = array();
   $form['redirect'] = array(
     '#type' => 'value',
     '#value' => $_GET['q'],
@@ -110,7 +112,7 @@ function demo_reset_now() {
 
 function demo_reset_now_submit($form_id, $values) {
   require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
-  demo_reset_confirm_submit($form_id, $values);
+  return demo_reset_confirm_submit($form_id, $values);
 }
 
 /**

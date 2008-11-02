@@ -2,4 +2,3 @@
 name = Demo Site
 description = Create snapshots and reset the site for demonstration or testing purposes.
 package = Development
-

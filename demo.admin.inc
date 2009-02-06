@@ -97,8 +97,7 @@ function _demo_manage() {
 function demo_manage_submit($form_id, $values) {
   switch ($values['op']) {
     case t('Set as default snapshot for cron'):
-      variable_set('demo_dump_cron', $values['filename']);
-      drupal_set_message(t('Snapshot %title will be used for upcoming cron runs.', array('%title' => $values['filename'])));
+      demo_set_default($values['filename']);
       break;
     
     case t('Delete selected snapshot'):
@@ -119,6 +118,10 @@ function _demo_dump() {
     '#required' => true,
     '#maxlength' => 128,
     '#description' => t('Enter the snapshot file name without file extension. Allowed characters are a-z, 0-9, dashes ("-"), underscores ("_") and dots.'),
+  );
+  $form['dump']['default'] = array(
+    '#title' => t('Set as new default snapshot'),
+    '#type' => 'checkbox',
   );
   $form['dump']['description'] = array(
     '#title' => t('Description'),
@@ -143,6 +146,11 @@ function demo_dump_submit($form_id, $values) {
   $inc_file = drupal_get_path('module', 'demo') .'/database_'. $engine .'_dump.inc';
   if (file_exists($inc_file)) {
     require_once $inc_file;
+
+    if (!empty($values['default'])) {
+      // Set new default snapshot.
+      demo_set_default($info['filename']);
+    }
   
     // Increase PHP's max_execution_time for large dumps.
     @set_time_limit(600);
@@ -473,5 +481,16 @@ function _demo_autocomplete($string = '') {
   }
   print drupal_to_js($matches);
   exit();
+}
+
+/**
+ * Sets a specific snapshot as default for cron runs or the site reset block.
+ *
+ * @param $filename
+ *   The filename of the snapshot.
+ */
+function demo_set_default($filename) {
+  variable_set('demo_dump_cron', $filename);
+  drupal_set_message(t('Snapshot %title will be used for upcoming cron runs.', array('%title' => $filename)));
 }
 

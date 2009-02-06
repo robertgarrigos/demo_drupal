@@ -177,6 +177,7 @@ function demo_dump_submit($form_id, $values) {
     $exclude = array('{cache}', '{cache_content}', '{cache_filter}', '{cache_menu}', '{cache_page}', '{cache_views}', '{panels_object_cache}', '{watchdog}');
     $exclude = array_map('db_prefix_tables', $exclude);
     demo_dump_db($fileconfig['sqlfile'], $exclude);
+    drupal_set_message(t('Successfully created snapshot %filename.', array('%filename' => $fileconfig['sqlfile'])));
   }
   else {
     drupal_set_message(t('@engine support not implemented yet.', array('@engine' => ucfirst($engine))), 'error');

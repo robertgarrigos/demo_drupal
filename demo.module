@@ -88,7 +88,7 @@ function demo_block($op = 'list', $delta = 0, $edit = array()) {
     case 'list':
       $blocks[0] = array('info' => t('Demo site reset'), 'enabled' => 1, 'region' => 'right');
       return $blocks;
-    
+
     case 'view':
       $block = array(
         'subject' => t('Reset demo'),
@@ -118,7 +118,7 @@ function demo_reset_now() {
 }
 
 function demo_reset_now_submit($form_id, $values) {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return demo_reset_confirm_submit($form_id, $values);
 }
 
@@ -130,7 +130,7 @@ function demo_cron() {
     // See if it's time for a reset.
     $time = $_SERVER['REQUEST_TIME'];
     if (($time - $interval) >= variable_get('demo_reset_last', 0)) {
-      require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+      require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
       demo_reset(variable_get('demo_dump_cron', 'demo_site'), FALSE);
       variable_set('demo_reset_last', $time);
     }
@@ -138,32 +138,32 @@ function demo_cron() {
 }
 
 function demo_admin_settings() {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_admin_settings();
 }
 
 function demo_manage() {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_manage();
 }
 
 function demo_dump() {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_dump();
 }
 
 function demo_reset_confirm() {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_reset_confirm();
 }
 
 function demo_delete_confirm($filename) {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_delete_confirm($filename);
 }
 
 function demo_autocomplete($string = '') {
-  require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
+  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
   return _demo_autocomplete($string);
 }
 

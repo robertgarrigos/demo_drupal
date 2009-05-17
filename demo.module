@@ -99,7 +99,6 @@ function demo_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 function demo_reset_now() {
-  $form = array();
   $form['redirect'] = array(
     '#type' => 'value',
     '#value' => $_GET['q'],
@@ -129,10 +128,11 @@ function demo_reset_now_submit($form_id, $values) {
 function demo_cron() {
   if ($interval = variable_get('demo_reset_interval', 0)) {
     // See if it's time for a reset.
-    if ((time() - $interval) >= variable_get('demo_reset_last', 0)) {
+    $time = $_SERVER['REQUEST_TIME'];
+    if (($time - $interval) >= variable_get('demo_reset_last', 0)) {
       require_once drupal_get_path('module', 'demo') .'/demo.admin.inc';
       demo_reset(variable_get('demo_dump_cron', 'demo_site'), FALSE);
-      variable_set('demo_reset_last', time());
+      variable_set('demo_reset_last', $time);
     }
   }
 }

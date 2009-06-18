@@ -176,6 +176,7 @@ function demo_dump_submit($form_id, $values) {
     $fileconfig = demo_get_fileconfig($info['filename']);
     $exclude = array(
       '{cache}',
+      '{cache_admin_menu}',
       '{cache_content}',
       '{cache_filter}',
       '{cache_menu}',

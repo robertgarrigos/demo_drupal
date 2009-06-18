@@ -6,6 +6,7 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 5.x-1.x, xxxx-xx-xx
 ------------------------
+by smk-ka: Added admin_menu cache table to exclude list.
 #489666 by stella: Added hook invocation after successful reset.
 by sun: Fixed coding-style.
 #424524 by John Money, sun: Fixed site not reset on all cron runs.

@@ -71,8 +71,13 @@ function demo_menu($may_cache) {
     );
     $items[] = array(
       'path' => 'demo/autocomplete',
-      'title' => t('Demo Site autocomplete'),
       'callback' => 'demo_autocomplete',
+      'access' => $admin_access,
+      'type' => MENU_CALLBACK,
+    );
+    $items[] = array(
+      'path' => 'demo/download',
+      'callback' => 'demo_download',
       'access' => $admin_access,
       'type' => MENU_CALLBACK,
     );

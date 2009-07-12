@@ -69,8 +69,13 @@ function demo_menu() {
     'type' => MENU_CALLBACK,
   );
   $items['demo/autocomplete'] = array(
-    'title' => 'Demo Site autocomplete',
     'page callback' => 'demo_autocomplete',
+    'access arguments' => $admin_access,
+    'file' => 'demo.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['demo/download'] = array(
+    'page callback' => 'demo_download',
     'access arguments' => $admin_access,
     'file' => 'demo.admin.inc',
     'type' => MENU_CALLBACK,

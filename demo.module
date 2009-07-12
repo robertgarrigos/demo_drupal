@@ -77,6 +77,9 @@ function demo_menu($may_cache) {
       'type' => MENU_CALLBACK,
     );
   }
+  else if (strpos($_GET['q'], 'admin/build/demo') === 0 || strpos($_GET['q'], 'demo') === 0) {
+    require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
+  }
   return $items;
 }
 
@@ -135,35 +138,5 @@ function demo_cron() {
       variable_set('demo_reset_last', $time);
     }
   }
-}
-
-function demo_admin_settings() {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_admin_settings();
-}
-
-function demo_manage() {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_manage();
-}
-
-function demo_dump() {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_dump();
-}
-
-function demo_reset_confirm() {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_reset_confirm();
-}
-
-function demo_delete_confirm($filename) {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_delete_confirm($filename);
-}
-
-function demo_autocomplete($string = '') {
-  require_once drupal_get_path('module', 'demo') . '/demo.admin.inc';
-  return _demo_autocomplete($string);
 }
 

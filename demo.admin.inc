@@ -11,7 +11,7 @@
  */
 define('DEMO_DUMP_VERSION', '1.1');
 
-function _demo_admin_settings() {
+function demo_admin_settings() {
   global $base_url;
 
   $form['status'] = array(
@@ -77,7 +77,7 @@ function demo_admin_settings_submit($form_id, $values) {
   drupal_set_message(t('The configuration options have been saved.'));
 }
 
-function _demo_manage() {
+function demo_manage() {
   $form['dump'] = array(
     '#type' => 'fieldset',
     '#title' => t('Available snapshots'),
@@ -105,7 +105,7 @@ function demo_manage_submit($form_id, $values) {
   }
 }
 
-function _demo_delete_confirm($filename = '') {
+function demo_delete_confirm($filename = '') {
   $fileconfig = demo_get_fileconfig($filename);
   if (!file_exists($fileconfig['infofile'])) {
     return drupal_access_denied();
@@ -126,7 +126,7 @@ function demo_delete_confirm_submit($form_id, $values) {
   return 'admin/build/demo/manage';
 }
 
-function _demo_dump() {
+function demo_dump() {
   $form = array();
   $form['dump']['filename'] = array(
     '#title' => t('File name'),
@@ -196,7 +196,7 @@ function demo_dump_submit($form_id, $values) {
   drupal_goto('admin/build/demo/manage');
 }
 
-function _demo_reset_confirm() {
+function demo_reset_confirm() {
   $form['dump'] = array(
     '#type' => 'fieldset',
     '#title' => t('Available snapshots'),
@@ -519,7 +519,7 @@ function demo_enum_tables() {
  * Retrieve a pipe delimited string of autocomplete suggestions for existing
  * snapshot names.
  */
-function _demo_autocomplete($string = '') {
+function demo_autocomplete($string = '') {
   $matches = array();
   if ($string && $fileconfig = demo_get_fileconfig()) {
     $string = preg_quote($string);

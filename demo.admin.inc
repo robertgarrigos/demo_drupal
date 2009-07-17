@@ -85,22 +85,22 @@ function demo_manage() {
   $form = array_merge_recursive($form, demo_get_dumps());
   $form[] = array(
     '#type' => 'submit',
-    '#value' => t('Set as default snapshot for cron'),
+    '#value' => t('Use for cron runs'),
   );
   $form[] = array(
     '#type' => 'submit',
-    '#value' => t('Delete selected snapshot'),
+    '#value' => t('Delete'),
   );
   return $form;
 }
 
 function demo_manage_submit($form_id, $values) {
   switch ($values['op']) {
-    case t('Set as default snapshot for cron'):
+    case t('Use for cron runs'):
       demo_set_default($values['filename']);
       break;
 
-    case t('Delete selected snapshot'):
+    case t('Delete'):
       return 'admin/build/demo/delete/' . $values['filename'];
   }
 }

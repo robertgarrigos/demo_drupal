@@ -11,6 +11,9 @@
  */
 define('DEMO_DUMP_VERSION', '1.1');
 
+/**
+ * Form builder for Demo module settings.
+ */
 function demo_admin_settings() {
   global $base_url;
 
@@ -65,6 +68,9 @@ function demo_admin_settings() {
   return $form;
 }
 
+/**
+ * Form submit handler for demo_admin_settings().
+ */
 function demo_admin_settings_submit($form, &$form_state) {
   if (!file_check_directory($form_state['values']['path'], FILE_CREATE_DIRECTORY)) {
     form_set_error('path', t('The snapshot directory %directory could not be created.', array('%directory' => $form_state['values']['path'])));
@@ -77,7 +83,10 @@ function demo_admin_settings_submit($form, &$form_state) {
   drupal_set_message(t('The configuration options have been saved.'));
 }
 
-function demo_manage() {
+/**
+ * Form builder to manage snapshots.
+ */
+function demo_manage_form() {
   $form['dump'] = array(
     '#type' => 'fieldset',
     '#title' => t('Available snapshots'),
@@ -95,14 +104,23 @@ function demo_manage() {
   return $form;
 }
 
-function demo_manage_submit($form, &$form_state) {
+/**
+ * Form submit handler for demo_manage_form().
+ */
+function demo_manage_form_submit($form, &$form_state) {
   demo_set_default($form_state['values']['filename']);
 }
 
+/**
+ * Delete button submit handler for demo_manage_form().
+ */
 function demo_manage_delete_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/build/demo/delete/' . $form_state['values']['filename'];
 }
 
+/**
+ * Form builder to confirm deletion of a snapshot.
+ */
 function demo_delete_confirm(&$form_state, $filename) {
   $fileconfig = demo_get_fileconfig($filename);
   if (!file_exists($fileconfig['infofile'])) {
@@ -116,6 +134,9 @@ function demo_delete_confirm(&$form_state, $filename) {
   return confirm_form($form, t('Are you sure you want to delete the snapshot %title?', array('%title' => $filename)), 'admin/build/demo/manage', t('This action cannot be undone.'), t('Delete'));
 }
 
+/**
+ * Form submit handler for demo_delete_confirm().
+ */
 function demo_delete_confirm_submit($form, &$form_state) {
   $files = demo_get_fileconfig($form_state['values']['filename']);
   unlink($files['sqlfile']);
@@ -124,8 +145,10 @@ function demo_delete_confirm_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/build/demo/manage';
 }
 
-function demo_dump() {
-  $form = array();
+/**
+ * Form builder to create a new snapshot.
+ */
+function demo_dump_form() {
   $form['dump']['filename'] = array(
     '#title' => t('File name'),
     '#type' => 'textfield',
@@ -144,60 +167,66 @@ function demo_dump() {
     '#rows' => 2,
     '#description' => t('Optionally enter a description for this snapshot here. If no description is given and a snapshot with the same filename already exists, the previous description is used.'),
   );
+  $form['dump']['tables'] = array('#type' => 'value', '#value' => demo_enum_tables());
+
   return confirm_form($form, t('Are you sure you want to create a new snapshot?'), 'admin/build/demo', t('If the above filename already exists, creating a new snapshot will overwrite the existing snapshot. This action cannot be undone.'), t('Create'), t('Cancel'));
 }
 
-function demo_dump_submit($form, &$form_state) {
-  global $db_type;
+/**
+ * Form submit handler for demo_dump_form().
+ */
+function demo_dump_form_submit($form, &$form_state) {
+  if ($fileconfig = demo_dump($form_state['values'])) {
+    drupal_set_message(t('Successfully created snapshot %filename.', array('%filename' => $fileconfig['sqlfile'])));
+  }
+  $form_state['redirect'] = 'admin/build/demo/manage';
+}
 
-  // Generate info file.
-  $info = demo_set_info($form_state['values']);
+/**
+ * Create a new snapshot.
+ *
+ * @param $options
+ *   A structured array of snapshot options:
+ *   - filename: The base output filename, without extension.
+ *   - default: Whether to set this dump as new default snapshot.
+ *   - description: A description for the snapshot. If a snapshot with the same
+ *     name already exists and this is left blank, the new snapshot will reuse
+ *     the existing description.
+ *   - tables: An array of tables to dump, keyed by table name (including table
+ *     prefix, if any). The value is an array of dump options:
+ *     - schema: Whether to dump the table schema.
+ *     - data: Whether to dump the table data.
+ */
+function demo_dump($options) {
+  // Increase PHP's max_execution_time for large dumps.
+  @set_time_limit(600);
+
+  // Allow other modules to alter the submitted option values.
+  drupal_alter('demo_dump', $options);
+
+  // Generate the info file.
+  $info = demo_set_info($options);
   if (!$info) {
     return FALSE;
   }
 
-  // Include database specific functions.
-  $engine = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-  $inc_file = drupal_get_path('module', 'demo') . '/database_' . $engine . '_dump.inc';
-  if (file_exists($inc_file)) {
-    require_once $inc_file;
-
-    if (!empty($form_state['values']['default'])) {
-      // Set new default snapshot.
-      demo_set_default($info['filename']);
-    }
-
-    // Increase PHP's max_execution_time for large dumps.
-    @set_time_limit(600);
-
-    // Perform dump.
-    $fileconfig = demo_get_fileconfig($info['filename']);
-    $exclude = array(
-      '{cache}',
-      '{cache_admin_menu}',
-      '{cache_block}',
-      '{cache_content}',
-      '{cache_filter}',
-      '{cache_form}',
-      '{cache_menu}',
-      '{cache_page}',
-      '{cache_views}',
-      '{ctools_object_cache}',
-      '{panels_object_cache}',
-      '{views_object_cache}',
-      '{watchdog}',
-    );
-    $exclude = array_map('db_prefix_tables', $exclude);
-    demo_dump_db($fileconfig['sqlfile'], $exclude);
-    drupal_set_message(t('Successfully created snapshot %filename.', array('%filename' => $fileconfig['sqlfile'])));
-  }
-  else {
-    drupal_set_message(t('@engine support not implemented yet.', array('@engine' => ucfirst($engine))), 'error');
+  // Perform database dump.
+  $fileconfig = demo_get_fileconfig($info['filename']);
+  if (!demo_dump_db($fileconfig['sqlfile'], $options)) {
+    return FALSE;
   }
 
-  $form_state['redirect'] = 'admin/build/demo/manage';
+  // Set as new default snapshot.
+  if (!empty($options['default'])) {
+    demo_set_default($info['filename']);
+  }
+
+  return $fileconfig;
 }
 
+/**
+ * Form builder to reset site to a snapshot.
+ */
 function demo_reset_confirm() {
   $form['dump'] = array(
     '#type' => 'fieldset',
@@ -208,19 +237,33 @@ function demo_reset_confirm() {
   return confirm_form($form, t('Are you sure you want to reset the site?'), 'admin/build/demo', t('Resetting the site will overwrite all changes that have been made to this Drupal installation since the chosen snapshot.<br /><br /><div style="color: red; font-weight: bold; font-size: 18px;"><center>THIS ACTION CANNOT BE UNDONE!</center><br /></div>'), t('Reset'), t('Cancel'));
 }
 
+/**
+ * Form submit handler for demo_reset_confirm().
+ */
 function demo_reset_confirm_submit($form, &$form_state) {
-  // Increase PHP's max_execution_time for large dumps.
-  @set_time_limit(600);
-
   // Reset site to chosen snapshot.
   demo_reset($form_state['values']['filename']);
-  // Save time of last reset.
-  variable_set('demo_reset_last', time());
 
   $form_state['redirect'] = isset($form_state['values']['redirect']) ? $form_state['values']['redirect'] : 'admin/build/demo';
 }
 
-function demo_reset($filename = 'demo_site', $verbose = TRUE) {
+/**
+ * Reset site using snapshot.
+ *
+ * @param $filename
+ *   Base snapshot filename, without extension.
+ * @param $verbose
+ *   Whether to output status messages.
+ */
+function demo_reset($filename, $verbose = TRUE) {
+  // Load database specific functions.
+  if (!demo_load_include()) {
+    return FALSE;
+  }
+
+  // Increase PHP's max_execution_time for large dumps.
+  @set_time_limit(600);
+
   $fileconfig = demo_get_fileconfig($filename);
   if (!file_exists($fileconfig['sqlfile']) || !($fp = fopen($fileconfig['sqlfile'], 'r'))) {
     if ($verbose) {
@@ -235,12 +278,12 @@ function demo_reset($filename = 'demo_site', $verbose = TRUE) {
   $version = demo_get_info($fileconfig['infofile'], 'version');
   $is_version_1_0_dump = version_compare($version, '1.1', '<');
 
-  // Drop tables
-  $dt_watchdog = db_prefix_tables('{watchdog}');
-  foreach (demo_enum_tables() as $table) {
+  // Drop tables.
+  $watchdog = db_prefix_tables('{watchdog}');
+  foreach (demo_enum_tables() as $table => $dump_options) {
     // Skip watchdog, except for legacy dumps that included the watchdog table
-    if ($table != $dt_watchdog || $is_version_1_0_dump) {
-      db_query("DROP TABLE %s", $table);
+    if ($table != $watchdog || $is_version_1_0_dump) {
+      db_query("DROP TABLE $table");
     }
   }
 
@@ -296,8 +339,12 @@ function demo_reset($filename = 'demo_site', $verbose = TRUE) {
     watchdog('demo', 'Failed restoring database from %filename.', array('%filename' => $fileconfig['sqlfile']), WATCHDOG_ERROR);
   }
 
-  // Reset default dump to load on cron.
+  // Reset default dump to load on cron. Normally, this should be the same as
+  // the original value, but whenever we reset the site to a different snapshot,
+  // it's very unlikely that we want to reset to the previous snapshot.
   variable_set('demo_dump_cron', $demo_dump_cron);
+  // Save request time of last reset.
+  variable_set('demo_reset_last', $_SERVER['REQUEST_TIME']);
 
   return $success;
 }
@@ -340,6 +387,20 @@ function demo_get_fileconfig($filename = 'demo_site') {
   $fileconfig['infofile'] = $fileconfig['dumppath'] . '/' . $fileconfig['info'];
 
   return $fileconfig;
+}
+
+/**
+ * Load database specific functions.
+ */
+function demo_load_include() {
+  global $db_type;
+
+  $engine = ($db_type == 'mysqli' ? 'mysql' : $db_type);
+  if (!module_load_include('inc', 'demo', 'database_' . $engine . '_dump')) {
+    drupal_set_message(t('@engine support not implemented yet.', array('@engine' => ucfirst($engine))), 'error');
+    return FALSE;
+  }
+  return TRUE;
 }
 
 function demo_get_dumps() {
@@ -484,25 +545,21 @@ function demo_enum_tables() {
 
   $tables = array();
 
+  // Load database specific functions.
+  if (!demo_load_include()) {
+    return FALSE;
+  }
+
+  // Create a regex that matches the table prefix(es).
   if (is_array($db_prefix)) {
-    // Create a regular expression for table prefix matching.
     $rx = '/^' . implode('|', array_filter($db_prefix)) . '/';
   }
   else if ($db_prefix != '') {
     $rx = '/^' . $db_prefix . '/';
   }
 
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      $result = db_query("SHOW TABLES");
-      break;
-
-    case 'pgsql':
-      $result = db_query("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", 'public');
-      break;
-  }
-
+  // Query the database engine for the table list.
+  $result = _demo_enum_tables();
   while ($table = db_fetch_array($result)) {
     $table = reset($table);
     if (is_array($db_prefix)) {
@@ -511,17 +568,46 @@ function demo_enum_tables() {
         $table_prefix = $matches[0];
         $plain_table = substr($table, strlen($table_prefix));
         if ($db_prefix[$plain_table] == $table_prefix || $db_prefix['default'] == $table_prefix) {
-          $tables[] = $table;
+          $tables[$table] = array('schema' => TRUE, 'data' => TRUE);
         }
       }
     }
     else if ($db_prefix != '') {
       if (preg_match($rx, $table)) {
-        $tables[] = $table;
+        $tables[$table] = array('schema' => TRUE, 'data' => TRUE);
       }
     }
     else {
-      $tables[] = $table;
+      $tables[$table] = array('schema' => TRUE, 'data' => TRUE);
+    }
+  }
+
+  // Apply default exclude list.
+  $excludes = array(
+    // Core
+    '{cache}',
+    '{cache_block}',
+    '{cache_content}',
+    '{cache_filter}',
+    '{cache_form}',
+    '{cache_menu}',
+    '{cache_page}',
+    '{cache_update}',
+    '{watchdog}',
+    // CTools
+    '{ctools_object_cache}',
+    // Drupal Administration Menu
+    '{cache_admin_menu}',
+    // Panels
+    '{panels_object_cache}',
+    // Views
+    '{cache_views}',
+    '{cache_views_data}',
+    '{views_object_cache}',
+  );
+  foreach (array_map('db_prefix_tables', $excludes) as $table) {
+    if (isset($tables[$table])) {
+      $tables[$table]['data'] = FALSE;
     }
   }
 
@@ -529,8 +615,7 @@ function demo_enum_tables() {
 }
 
 /**
- * Retrieve a pipe delimited string of autocomplete suggestions for existing
- * snapshot names.
+ * Retrieve a pipe delimited string of autocomplete suggestions for existing snapshots.
  */
 function demo_autocomplete($string = '') {
   $matches = array();

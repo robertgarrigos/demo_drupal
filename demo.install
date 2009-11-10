@@ -7,6 +7,13 @@
  */
 
 /**
+ * Implements hook_uninstall().
+ */
+function demo_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'demo_%%'");
+}
+
+/**
  * Move existing dumps to new directory without site name sub-folder.
  */
 function demo_update_6100() {

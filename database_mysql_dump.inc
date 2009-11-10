@@ -88,7 +88,8 @@ function _demo_dump_table_schema($fp, $table) {
   $output .= preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $data['Create Table']) . ";\n";
   $status = db_fetch_array(db_query("SHOW TABLE STATUS LIKE '%s'", $table));
   $output .= ' ENGINE=' . $status['engine'];
-  $output .= ' DEFAULT CHARSET=' . $status['collation'];
+  // @todo Wrong value; contains 'utf8_general_ci' (collation), not 'utf8' (charset).
+  //$output .= ' DEFAULT CHARSET=' . $status['collation'];
   if (!empty($status['comment'])) {
     $output .= " COMMENT='" . $status['comment'] . "'";
   }

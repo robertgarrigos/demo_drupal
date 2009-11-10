@@ -22,11 +22,11 @@ Bug reports, feature suggestions and latest developments:
 
 -- INSTALLATION --
 
-* Copy the demo module to your modules directory and enable it on the Modules
+* Copy the Demo module to your modules directory and enable it on the Modules
   page (admin/build/modules).
 
-* Optionally configure who is allowed to administer demo module, create dumps
-  and reset the site at the Access control page (admin/user/access).
+* Optionally configure who is allowed to administer Demo module, create dumps
+  and reset the site on the Permissions page (admin/user/permissions).
 
 
 -- CONFIGURATION --

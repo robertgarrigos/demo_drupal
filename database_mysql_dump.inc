@@ -67,7 +67,7 @@ function _demo_get_database() {
  * Enumerate database tables.
  */
 function _demo_enum_tables() {
-  return db_query("SHOW TABLES");
+  return db_query('SHOW TABLES');
 }
 
 /**
@@ -86,6 +86,17 @@ function _demo_dump_table_schema($fp, $table) {
 
   $data = db_fetch_array(db_query("SHOW CREATE TABLE %s", $table));
   $output .= preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $data['Create Table']) . ";\n";
+  $status = db_fetch_array(db_query("SHOW TABLE STATUS LIKE '%s'", $table));
+  $output .= ' ENGINE=' . $status['engine'];
+  $output .= ' DEFAULT CHARSET=' . $status['collation'];
+  if (!empty($status['comment'])) {
+    $output .= " COMMENT='" . $status['comment'] . "'";
+  }
+  // @todo Depends on whether we dump data and table existence on import.
+//  if (!empty($status['auto_increment'])) {
+//    $output .= ' AUTO_INCREMENT=' . $status['auto_increment'];
+//  }
+  $output .= ";\n";
 
   fwrite($fp, $output);
 }

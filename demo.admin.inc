@@ -356,7 +356,7 @@ function demo_load_include() {
   global $db_type;
 
   $engine = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-  if (!module_load_include('inc', 'demo', 'database_' . $engine . '_dump')) {
+  if (module_load_include('inc', 'demo', 'database_' . $engine . '_dump') === FALSE) {
     drupal_set_message(t('@engine support not implemented yet.', array('@engine' => ucfirst($engine))), 'error');
     return FALSE;
   }

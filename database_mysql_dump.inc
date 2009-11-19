@@ -85,9 +85,12 @@ function _demo_dump_table_schema($fp, $table) {
   $output .= "--\n\n";
 
   $data = db_fetch_array(db_query("SHOW CREATE TABLE %s", $table));
-  $output .= preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $data['Create Table']) . ";\n";
+  $output .= preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $data['Create Table']);
   $status = db_fetch_array(db_query("SHOW TABLE STATUS LIKE '%s'", $table));
-  $output .= ' ENGINE=' . $status['engine'];
+  // PDO is missing the table type.
+  if (!strpos($output, ' ENGINE=')) {
+    $output .= ' ENGINE=' . $status['engine'];
+  }
   // @todo Wrong value; contains 'utf8_general_ci' (collation), not 'utf8' (charset).
   //$output .= ' DEFAULT CHARSET=' . $status['collation'];
   if (!empty($status['comment'])) {

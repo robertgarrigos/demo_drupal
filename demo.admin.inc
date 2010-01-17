@@ -177,10 +177,19 @@ function _demo_dump($options) {
   if (!demo_dump_db($fileconfig['sqlfile'], $options)) {
     return FALSE;
   }
-  else {
-    // Allow other modules to act on successful dumps.
-    module_invoke_all('demo_dump', $options, $info, $fileconfig);
+
+  // Adjust file permissions.
+  if (function_exists('drupal_chmod')) {
+    drupal_chmod($fileconfig['infofile']);
+    drupal_chmod($fileconfig['sqlfile']);
   }
+  else {
+    chmod($fileconfig['infofile'], 0664);
+    chmod($fileconfig['sqlfile'], 0664);
+  }
+
+  // Allow other modules to act on successful dumps.
+  module_invoke_all('demo_dump', $options, $info, $fileconfig);
 
   return $fileconfig;
 }
@@ -334,7 +343,12 @@ function demo_get_fileconfig($filename = 'demo_site') {
     $htaccess_lines = "# demo.module snapshots\n# Do not let the webserver serve anything under here!\n#\nDeny from all\n";
     if (($fp = fopen($htaccess, 'w')) && fputs($fp, $htaccess_lines)) {
       fclose($fp);
-      chmod($htaccess, 0664);
+      if (function_exists('drupal_chmod')) {
+        drupal_chmod($htaccess);
+      }
+      else {
+        chmod($htaccess, 0664);
+      }
     }
   }
 
@@ -411,7 +425,7 @@ function demo_get_dumps() {
     $option['#description'] .= '<p>' . t('Download: <a href="@info-file-url">.info file</a>, <a href="@sql-file-url">.sql file</a>', $targs) . '</p>';
     if (count($info['modules']) > 1) {
       // Remove required core modules and obvious modules from module list.
-      $info['modules'] = array_diff($info['modules'], array('block', 'filter', 'node', 'system', 'user', 'watchdog', 'demo'));
+      $info['modules'] = array_diff($info['modules'], array('block', 'filter', 'node', 'system', 'user', 'demo'));
       // Sort module list alphabetically.
       sort($info['modules']);
       $option['#description'] .= t('Modules: ') . implode(', ', $info['modules']);

@@ -6,6 +6,11 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 6.x-1.x, xxxx-xx-xx
 ------------------------
+
+
+Demo 6.x-1.4, 2010-02-19
+------------------------
+#715174 by sun: Fixed Demo Reset block not working.
 #702428 by swentel: Fixed undefined constant REQUEST_TIME error.
 
 

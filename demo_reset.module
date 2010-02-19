@@ -98,14 +98,28 @@ function demo_reset_demo_reset($filename, $info, $fileconfig) {
 }
 
 /**
+ * Implements hook_block().
+ *
+ * Lazy backport.
+ */
+function demo_reset_block($op = 'list', $delta = '', $edit = array()) {
+  if ($op == 'list') {
+    return demo_reset_block_info();
+  }
+  elseif ($op == 'view') {
+    return demo_reset_block_view('reset');
+  }
+}
+
+/**
  * Implements hook_block_list().
  */
 function demo_reset_block_info() {
   $blocks['reset'] = array(
     'info' => t('Demonstration site reset'),
     'status' => 1,
-    'region' => 'sidebar_second',
-    'cache' => DRUPAL_NO_CACHE,
+    'region' => 'right',
+    'cache' => BLOCK_NO_CACHE,
   );
   return $blocks;
 }
@@ -126,7 +140,7 @@ function demo_reset_block_view($delta = '') {
  *
  * No access permission check or any condition here. By design.
  */
-function demo_reset_block_form($form, &$form_state) {
+function demo_reset_block_form(&$form_state) {
   $form['redirect'] = array(
     '#type' => 'value',
     '#value' => $_GET['q'],
@@ -137,7 +151,7 @@ function demo_reset_block_form($form, &$form_state) {
     '#value' => $filename,
   );
   $form['snapshot'] = array(
-    '#markup' => t('Active snapshot: @snapshot', array('@snapshot' => $filename)),
+    '#value' => t('Active snapshot: @snapshot', array('@snapshot' => $filename)),
   );
   $form['submit'] = array(
     '#type' => 'submit',

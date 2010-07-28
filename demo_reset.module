@@ -117,8 +117,6 @@ function demo_reset_block($op = 'list', $delta = '', $edit = array()) {
 function demo_reset_block_info() {
   $blocks['reset'] = array(
     'info' => t('Demonstration site reset'),
-    'status' => 1,
-    'region' => 'right',
     'cache' => BLOCK_NO_CACHE,
   );
   return $blocks;

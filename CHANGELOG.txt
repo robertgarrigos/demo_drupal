@@ -6,6 +6,7 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 6.x-1.x, xxxx-xx-xx
 ------------------------
+#765186 by sun: Fixed collation not dumped for tables.
 #835952 by marcushenningsen: Fixed Demo Reset block region/status incompatible
   with other themes.
 
@@ -19,7 +20,7 @@ Demo 6.x-1.4, 2010-02-19
 Demo 6.x-1.3, 2010-01-17
 ------------------------
 by sun: Fixed file permissions of new .info and .sql files.
-#637458 by smk-ka: Fixed broken dumps whne not using PDO driver.
+#637458 by smk-ka: Fixed broken dumps when not using PDO driver.
 #633050 by sun: Fixed false error message about missing engine support.
 #294879 by sun: Splitted module into API and demo_reset module.
 #375507 by sun: Added hook_uninstall().

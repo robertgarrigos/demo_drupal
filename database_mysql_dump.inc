@@ -22,16 +22,33 @@ function demo_dump_db($filename, $options = array()) {
   }
 
   if ($fp = fopen($filename, 'wb')) {
-    $header = "-- Demo.module database dump (version " . DEMO_DUMP_VERSION . ")\n";
-    $header .= "-- http://drupal.org/project/demo\n";
-    $header .= "--\n";
-    $header .= "-- Database: " . _demo_get_database() . "\n";
-    $header .= "-- Date: " . format_date(time(), 'large') . "\n\n";
+    $header = array();
+    $header[] = '-- Demo module database dump';
+    $header[] = '-- Version ' . DEMO_DUMP_VERSION;
+    $header[] = '-- http://drupal.org/project/demo';
+    $header[] = '--';
+    $header[] = '-- Database: ' . _demo_get_database();
+    $header[] = '-- Date: ' . format_date(time(), 'small');
+    $header[] = '-- Server version: ' . db_version();
+    $header[] = '-- PHP version: ' . PHP_VERSION;
+    $header[] = '-- Drupal version: ' . VERSION;
+
     // Avoid auto value for zero values (required for user id 0).
-    $header .= "SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";\n";
+    $header[] = '';
+    $header[] = 'SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";';
     // Temporarily disable foreign key checks for the time of import.
-    $header .= "SET FOREIGN_KEY_CHECKS = 0;\n";
-    fwrite($fp, $header);
+    $header[] = 'SET FOREIGN_KEY_CHECKS = 0;';
+    $header[] = '';
+
+    // Set collations for the import. PMA and mysqldump use conditional comments
+    // to exclude MySQL <4.1, but D6 requires >=4.1.
+    $header[] = 'SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;';
+    $header[] = 'SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;';
+    $header[] = 'SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;';
+    $header[] = 'SET NAMES utf8;';
+    $header[] = '';
+
+    fwrite($fp, implode("\n", $header));
 
     foreach ($options['tables'] as $table => $dump_options) {
       if (!_demo_table_is_view($table)) {
@@ -44,8 +61,22 @@ function demo_dump_db($filename, $options = array()) {
       }
     }
 
+    $footer = array();
+    $footer[] = '';
     // Re-enable foreign key checks.
-    fwrite($fp, "\nSET FOREIGN_KEY_CHECKS = 1;\n");
+    $footer[] = 'SET FOREIGN_KEY_CHECKS = 1;';
+
+    // Revert collations for potential subsequent database queries not belonging
+    // to this module.
+    // @todo Double-check this behavior according to the results of
+    //   http://drupal.org/node/772678
+    $footer[] = 'SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;';
+    $footer[] = 'SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;';
+    $footer[] = 'SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;';
+    $footer[] = '';
+
+    $footer[] = '';
+    fwrite($fp, implode("\n", $footer));
 
     fclose($fp);
     return TRUE;
@@ -59,7 +90,7 @@ function demo_dump_db($filename, $options = array()) {
  */
 function _demo_get_database() {
   $database = array_keys(db_fetch_array(db_query('SHOW TABLES')));
-  $database = preg_replace('/^Tables_in_/', '', $database[0]);
+  $database = preg_replace('/^Tables_in_/i', '', $database[0]);
   return $database;
 }
 
@@ -81,27 +112,90 @@ function _demo_enum_tables() {
 function _demo_dump_table_schema($fp, $table) {
   $output = "\n";
   $output .= "--\n";
-  $output .= "-- Table structure for table '$table'\n";
+  $output .= "-- Structure for table '$table'\n";
   $output .= "--\n\n";
 
   $data = db_fetch_array(db_query("SHOW CREATE TABLE %s", $table));
-  $output .= preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $data['Create Table']);
   $status = db_fetch_array(db_query("SHOW TABLE STATUS LIKE '%s'", $table));
-  // PDO is missing the table type.
+
+  // Column keys in $data and $status start with a lower-case letter in PDO and
+  // with a upper-case letter otherwise. We convert all to lower-case.
+  foreach ($data as $key => $value) {
+    $key_lower = drupal_strtolower($key);
+    if ($key != $key_lower) {
+      $data[$key_lower] = $value;
+      unset($data[$key]);
+    }
+  }
+  foreach ($status as $key => $value) {
+    $key_lower = drupal_strtolower($key);
+    if ($key != $key_lower) {
+      $status[$key_lower] = $value;
+      unset($status[$key]);
+    }
+  }
+
+  // Add IF NOT EXISTS to CREATE TABLE, replace double quotes with MySQL quotes.
+  $output .= preg_replace(
+    array('/^CREATE TABLE/', '/"/'),
+    array('CREATE TABLE IF NOT EXISTS', '`'),
+    $data['create table']
+  );
+
+  // @todo Rethink the following code. Perhaps try to strip + parse the existing
+  //   table definition (after leading ")" on last line) and merge anything
+  //   missing into it, and re-append it again. There are too many differences
+  //   between MySQL 5.0 and 5.1+, and PHP mysql(i) and pdo_mysql extensions.
+
+  // PDO is missing the table engine.
   if (!strpos($output, ' ENGINE=')) {
     $output .= ' ENGINE=' . $status['engine'];
   }
-  // @todo Wrong value; contains 'utf8_general_ci' (collation), not 'utf8' (charset).
-  //$output .= ' DEFAULT CHARSET=' . $status['collation'];
-  if (!empty($status['comment'])) {
+
+  // Always add charset and collation info to table definitions.
+  // SHOW CREATE TABLE does not contain collation information, if the collation
+  // is equal to the default collation of the connection. Since dumps can be
+  // moved across servers, we need to ensure correct collations.
+  // Note that [DEFAULT] CHARSET or [DEFAULT] CHARACTER SET is always contained
+  // on MySQL 5.1, even if it is equal to the default.
+  // This addition assumes that a collation specified for a table is taken over
+  // for the table's columns. The MySQL manual does not state whether this is
+  // the case, but manual tests confirmed that it works that way.
+  // Like Drupal core, we need to enforce UTF8 as character set and
+  // utf8_general_ci as default database collation, if not overridden via
+  // settings.php.
+  if (!strpos($output, 'COLLATE=')) {
+    // Only if the collation contains a underscore, the first string up to the
+    // first underscore is the character set.
+    // @see PMA_exportDBCreate()
+    if (strpos($status['collation'], '_')) {
+      $collate = 'COLLATE=' . $status['collation'];
+    }
+    // If there is a character set defined already, just append the collation.
+    if (strpos($output, 'CHARSET') || strpos($output, 'CHARACTER SET')) {
+      // @todo This may also hit column definitions instead of the table
+      //   definition only. Should technically also be case-insensitive.
+      $output = preg_replace('@((?:DEFAULT )?(?:CHARSET|CHARACTER SET) \w+)@', '$1 ' . $collate, $output);
+    }
+    else {
+      $output .= ' DEFAULT CHARSET=utf8 ' . $collate;
+    }
+  }
+
+  // Add the table comment, if any.
+  if (!preg_match('@^\) .*COMMENT.+$@', $output) && !empty($status['comment'])) {
+    // On PHP 5.2.6/Win32 with PDO MySQL 5.0 with InnoDB, the table comment has
+    // a trailing "; InnoDB free: 84992 kB".
+    $status['comment'] = preg_replace('@; InnoDB free: .+$@', '', $status['comment']);
     $output .= " COMMENT='" . $status['comment'] . "'";
   }
+
   // @todo Depends on whether we dump data and table existence on import.
 //  if (!empty($status['auto_increment'])) {
 //    $output .= ' AUTO_INCREMENT=' . $status['auto_increment'];
 //  }
-  $output .= ";\n";
 
+  $output .= ";\n";
   fwrite($fp, $output);
 }
 
@@ -118,7 +212,7 @@ function _demo_dump_table_schema($fp, $table) {
 function _demo_dump_table_data($fp, $table) {
   $output = "\n";
   $output .= "--\n";
-  $output .= "-- Dumping data for table '$table'\n";
+  $output .= "-- Data for table '$table'\n";
   $output .= "--\n\n";
 
   // Dump table data.
@@ -248,7 +342,15 @@ function _demo_table_is_view($table) {
   static $tables = array();
   if (!isset($tables[$table])) {
     $status = db_fetch_array(db_query("SHOW TABLE STATUS LIKE '%s'", $table));
-    $tables[$table] = (strtoupper(substr($status['Comment'], 0, 4)) == 'VIEW');
+    // Column keys in $status start with a lower-case letter in PDO and with a
+    // upper-case letter otherwise. We convert all to lower-case.
+    foreach ($status as $key => $value) {
+      $key_lower = drupal_strtolower($key);
+      if ($key != $key_lower) {
+        $status[$key_lower] = $value;
+      }
+    }
+    $tables[$table] = (drupal_strtoupper(drupal_substr($status['comment'], 0, 4)) == 'VIEW');
   }
   return $tables[$table];
 }

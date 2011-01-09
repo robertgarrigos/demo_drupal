@@ -600,8 +600,7 @@ function demo_autocomplete($string = '') {
       $matches[$file->name] = check_plain($file->name);
     }
   }
-  print drupal_to_js($matches);
-  exit();
+  drupal_json($matches);
 }
 
 /**

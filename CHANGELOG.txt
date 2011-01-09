@@ -6,6 +6,7 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 6.x-1.x, xxxx-xx-xx
 ------------------------
+#520082 by eMPee584: Fixed autocomplete errors with Devel.
 #765186 by sun: Fixed collation not dumped for tables.
 #835952 by marcushenningsen: Fixed Demo Reset block region/status incompatible
   with other themes.

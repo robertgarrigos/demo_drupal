@@ -247,6 +247,12 @@ function _demo_reset($filename, $verbose = TRUE) {
   $info = demo_get_info($fileconfig['infofile']);
   module_invoke_all('demo_reset_before', $filename, $info, $fileconfig);
 
+  // Temporarily disable foreign key checks for the time of import and before
+  // dropping existing tables. Foreign key checks should already be re-enabled
+  // as one of the last operations in the SQL dump file.
+  // @see demo_dump_db()
+  db_query("SET FOREIGN_KEY_CHECKS = 0;");
+
   // Drop tables.
   $is_version_1_0_dump = version_compare($info['version'], '1.1', '<');
   $watchdog = db_prefix_tables('{watchdog}');

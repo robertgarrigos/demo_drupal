@@ -6,6 +6,7 @@ Demo x.x-x.x, xxxx-xx-xx
 
 Demo 6.x-1.x, xxxx-xx-xx
 ------------------------
+#733724 by sivaji, sun: Fixed dump path setting accepts invalid path.
 #312215 by sethfisher, sun: Fixed foreign key checks prevent dropping of tables.
 #520082 by eMPee584: Fixed autocomplete errors with Devel.
 #765186 by sun: Fixed collation not dumped for tables.

@@ -39,12 +39,12 @@ function demo_admin_settings() {
     '#title' => t('Dump settings'),
   );
 
-
   $form['dump']['demo_dump_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Dump path'),
     '#default_value' => $fileconfig['path'],
     '#description' => t('Enter a writable directory where dump files of this demonstration site are stored, f.e. %files. The name of this site (e.g. %confpath) is automatically appended to this directory, if required.<br /><br /><strong>Note: For security reasons you should store site dumps outside of the document root of your webspace!</strong>', array('%files' => file_directory_path() . '/demo', '%confpath' => $fileconfig['site'])),
+    '#required' => TRUE,
   );
   $form['#validate'][] = 'demo_admin_settings_validate';
 
@@ -54,7 +54,7 @@ function demo_admin_settings() {
 /**
  * Form validation handler for demo_admin_settings().
  */
-function demo_admin_settings_submit($form, &$form_state) {
+function demo_admin_settings_validate($form, &$form_state) {
   if (!file_check_directory($form_state['values']['demo_dump_path'], FILE_CREATE_DIRECTORY)) {
     form_set_error('demo_dump_path', t('The snapshot directory %directory could not be created.', array('%directory' => $form_state['values']['demo_dump_path'])));
   }

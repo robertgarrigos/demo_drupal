@@ -1,7 +1,7 @@
 name = Demonstration site
 description = Create snapshots and reset the site for demonstration or testing purposes.
 package = Development
-core = 7.x
+core = 8.x
 configure = admin/structure/demo
 files[] = demo.module
 files[] = demo.admin.inc

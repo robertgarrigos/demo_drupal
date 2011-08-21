@@ -424,7 +424,7 @@ function demo_get_fileconfig($filename = 'demo_site') {
   }
 
   // Protect dump files.
-  file_create_htaccess($fileconfig['path'], TRUE);
+  file_save_htaccess($fileconfig['path'], TRUE);
 
   // Build SQL filename.
   $fileconfig['sql'] = $filename . '.sql';

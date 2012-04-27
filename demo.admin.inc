@@ -5,6 +5,8 @@
  * Demonstration Site administrative pages
  */
 
+use Drupal\Core\Database\Database;
+
 /**
  * Current version of SQL dump structure.
  */

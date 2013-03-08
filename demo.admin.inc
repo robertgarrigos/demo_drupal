@@ -639,6 +639,7 @@ function demo_enum_tables() {
   // Apply default exclude list.
   $excludes = array(
     // Drupal core.
+    '{batch}',
     '{cache}',
     '{cache_bootstrap}',
     '{cache_block}',

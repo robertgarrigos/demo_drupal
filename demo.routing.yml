@@ -1,0 +1,23 @@
+demo.snapshots:
+  path: 'admin/structure/demo'
+  defaults:
+    _form: '\Drupal\demo\Form\DemoManageForm'
+    _title: 'Snapshots'
+  requirements:
+    _permission: 'administer demo'
+
+demo.dump:
+  path: 'admin/structure/demo/dump'
+  defaults:
+    _form: '\Drupal\demo\Form\DumpDemoForm'
+    _title: 'Create Snapshot'
+  requirements:
+    _permission: 'administer demo'
+
+demo.reset:
+  path: 'admin/structure/demo/reset'
+  defaults:
+    _form: '\Drupal\demo\Form\DemoResetConfirm'
+    _title: 'Reset'
+  requirements:
+    _permission: 'administer demo'

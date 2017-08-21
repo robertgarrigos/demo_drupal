@@ -1,0 +1,6 @@
+demo-library:
+  version: 1.x
+  css:
+    css/demo.admin.css: {}
+  js:
+    js/demo.admin.js: {}

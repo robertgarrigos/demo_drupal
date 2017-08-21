@@ -1,4 +1,5 @@
 <?php
+// $Id: database_mysql_dump.inc,v 1.20 2010/09/04 00:24:29 sun Exp $
 
 // Some older mysql client libs are missing this constant.
 if (!defined('MYSQLI_BINARY_FLAG')) {
@@ -117,15 +118,14 @@ function _demo_dump_table_schema($fp, $table) {
   $data = db_query("SHOW CREATE TABLE `$table`")->fetchAssoc();
   $status = db_query('SHOW TABLE STATUS LIKE :table', array(':table' => $table))->fetchAssoc();
 
-  // Capitalization of keys depends on PDO database connection options.
-  // Convert them to lowercase.
-  foreach ($data as $key => $value) {
-    unset($data[$key]);
-    $data[strtolower($key)] = $value;
-  }
+  // Column keys in $status start with a lower-case letter in PDO and with a
+  // upper-case letter otherwise. We convert all to lower-case.
   foreach ($status as $key => $value) {
-    unset($status[$key]);
-    $status[strtolower($key)] = $value;
+    $key_lower = strtolower($key);
+    if ($key[0] != $key_lower[0]) {
+      $status[$key_lower] = $value;
+      unset($status[$key]);
+    }
   }
 
   // Add IF NOT EXISTS to CREATE TABLE, replace double quotes with MySQL quotes.
@@ -165,9 +165,9 @@ function _demo_dump_table_schema($fp, $table) {
       $collate = 'COLLATE=' . $status['collation'];
     }
     // If there is a character set defined already, just append the collation.
-    // Only look for the table definition (on the last line); column definitions
-    // may use a special collation, which must not be changed.
-    if (preg_match('@^\).+(?:CHARSET|CHARACTER SET)@m', $output)) {
+    if (strpos($output, 'CHARSET') || strpos($output, 'CHARACTER SET')) {
+      // @todo This may also hit column definitions instead of the table
+      //   definition only. Should technically also be case-insensitive.
       $output = preg_replace('@((?:DEFAULT )?(?:CHARSET|CHARACTER SET) \w+)@', '$1 ' . $collate, $output);
     }
     else {
@@ -332,9 +332,7 @@ function _demo_table_is_view($table) {
   static $tables = array();
   if (!isset($tables[$table])) {
     $status = db_query('SHOW TABLE STATUS LIKE :table', array(':table' => $table))->fetchAssoc();
-    // Capitalization of keys depends on PDO database connection options.
-    $comment = (isset($status['Comment']) ? $status['Comment'] : $status['comment']);
-    $tables[$table] = (strtoupper(substr($comment, 0, 4)) == 'VIEW');
+    $tables[$table] = (strtoupper(substr($status['comment'], 0, 4)) == 'VIEW');
   }
   return $tables[$table];
 }

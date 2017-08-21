@@ -1,0 +1,5 @@
+demo.manage_form:
+  route_name: demo.manage_form
+  title: Snapshots
+  description: 'Create snapshots and reset the site.'
+  parent: system.admin_structure

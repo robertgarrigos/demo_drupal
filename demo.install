@@ -1,6 +1,4 @@
 <?php
-// $Id: demo.install,v 1.9 2010/09/04 02:42:26 sun Exp $
-
 /**
  * @file
  * Demonstration site module installation functions.
@@ -12,35 +10,3 @@
 function demo_uninstall() {
   \Drupal::config('demo.settings')->clear('demo_reset_last')->save();
 }
-
-/**
- * Move existing dumps to new directory without site name sub-folder.
- */
-function demo_update_6100() {
-  // If file_directory_path() contains the site name already or is
-  // 'sites/all/files', create new folder without site name and move existing
-  // files to the new location.
-  // @FIXME
-// Could not extract the default value because it is either indeterminate, or
-// not scalar. You'll need to provide a default value in
-// config/install/demo.settings.yml and config/schema/demo.schema.yml.
-$new_path = \Drupal::config('demo.settings')->get('demo_dump_path');
-  if (strpos($new_path, \Drupal\Core\DrupalKernel::findSitePath()) !== FALSE || strpos($new_path, '/all/') !== FALSE) {
-    $old_path = $new_path . str_replace('sites', '', \Drupal\Core\DrupalKernel::findSitePath());
-    if ($new_path != $old_path && file_check_directory($old_path)) {
-      // Fetch list of available files.
-      $files = file_scan_directory($old_path, '/\.(info|sql)$/');
-      foreach ($files as $file) {
-        rename($file->filename, $new_path . '/' . $file->basename);
-      }
-      // Ignore any warnings from rmdir() about remaining files in the old
-      // directory (they will NOT be deleted).
-      @rmdir($old_path);
-    }
-  }
-}
-
-/**
- * @todo Remove file_directory_path() from demo_dump_path variable.
- */
-

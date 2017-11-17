@@ -1,6 +1,4 @@
 <?php
-// $Id: database_mysql_dump.inc,v 1.20 2010/09/04 00:24:29 sun Exp $
-
 // Some older mysql client libs are missing this constant.
 if (!defined('MYSQLI_BINARY_FLAG')) {
   define('MYSQLI_BINARY_FLAG', 128);

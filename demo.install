@@ -1,10 +1,5 @@
 <?php
 /**
- * @file
- * Demonstration site module installation functions.
- */
-
-/**
  * Implements hook_uninstall().
  */
 function demo_uninstall() {

@@ -1,5 +1,3 @@
-/* $Id: README.txt,v 1.7 2009/11/09 18:21:28 sun Exp $ */
-
 -- SUMMARY --
 
 Demo Site is a simple module that allows you to take a snapshot of a Drupal

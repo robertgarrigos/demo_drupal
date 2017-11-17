@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\demo\Form\DemoAdminSettings.
- */
-
 namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

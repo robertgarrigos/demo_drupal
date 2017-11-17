@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\demo\Form\DemoDeleteConfirm.
- */
-
 namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\FormBase;

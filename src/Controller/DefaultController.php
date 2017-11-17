@@ -1,7 +1,4 @@
-<?php /**
- * @file
- * Contains \Drupal\demo\Controller\DefaultController.
- */
+<?php 
 
 namespace Drupal\demo\Controller;
 

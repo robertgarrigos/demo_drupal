@@ -21,7 +21,7 @@ class DemoAdminSettings extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Snapshot file system path'),
       '#field_prefix' => 'private://',
-      '#default_value' => variable_get('demo_dump_path', 'demo'),
+      '#default_value' => \Drupal::state()->get('demo_dump_path', 'demo'),
       '#required' => TRUE,
     ];
     

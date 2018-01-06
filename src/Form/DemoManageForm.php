@@ -31,7 +31,7 @@ class DemoManageForm extends FormBase {
           ]
         ],
     ];
-    $reset_date = variable_get('demo_reset_last', 0);
+    $reset_date = \Drupal::state()->get('demo_reset_last', 0);
     $form['status']['reset_last'] = [
       '#type' => 'item',
       '#title' => t('Last reset'),

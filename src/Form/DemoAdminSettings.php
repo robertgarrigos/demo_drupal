@@ -15,7 +15,7 @@ class DemoAdminSettings extends ConfigFormBase {
     return 'demo_admin_settings';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
 
     $form['demo_dump_path'] = [
       '#type' => 'textfield',
@@ -28,7 +28,7 @@ class DemoAdminSettings extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  public function validateForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!file_prepare_directory($form_state->getValue(['demo_dump_path']), FILE_CREATE_DIRECTORY)) {
       $form_state->setErrorByName('demo_dump_path', t('The snapshot directory %directory could not be created.', [
         '%directory' => $form_state->getValue(['demo_dump_path'])

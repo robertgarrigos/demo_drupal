@@ -15,7 +15,7 @@ class DemoDumpForm extends FormBase {
     return 'demo_dump_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
 
     $form['dump']['filename'] = [
@@ -55,7 +55,7 @@ class DemoDumpForm extends FormBase {
     return $form;
   }
 
-  public function validateForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getValue(['confirm'])) {
       $fileconfig = demo_get_fileconfig($form_state->getValue([
         'dump',
@@ -68,7 +68,7 @@ class DemoDumpForm extends FormBase {
     }
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {
       drupal_set_message(t('Snapshot %filename has been created.', [
         '%filename' => $form_state->getValue(['dump', 'filename'])

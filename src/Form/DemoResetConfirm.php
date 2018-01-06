@@ -15,7 +15,7 @@ class DemoResetConfirm extends FormBase {
     return 'demo_reset_confirm';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['dump'] = demo_get_dumps();
 
     $form['warning'] = [
@@ -34,7 +34,14 @@ class DemoResetConfirm extends FormBase {
     return confirm_form($form, t('Are you sure you want to reset the site?'), 'admin/structure/demo', t('Overwrites all changes that made to this site since the chosen snapshot.'), t('Reset'));
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}.
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+  }
+
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     // Reset site to chosen snapshot.
     _demo_reset($form_state->getValue(['filename']));
 

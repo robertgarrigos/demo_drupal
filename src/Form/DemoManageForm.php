@@ -15,7 +15,7 @@ class DemoManageForm extends FormBase {
     return 'demo_manage_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['status'] = [
       '#type' => 'container',
       '#title' => t('Status'),
@@ -56,6 +56,20 @@ class DemoManageForm extends FormBase {
     }
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}.
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+  }
+
+  /**
+   * {@inheritdoc}.
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+
   }
 
 }

@@ -15,7 +15,7 @@ class DemoDeleteConfirm extends FormBase {
     return 'demo_delete_confirm';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state, $filename = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
     if (!file_exists($fileconfig['infofile'])) {
       return drupal_access_denied();
@@ -30,7 +30,14 @@ class DemoDeleteConfirm extends FormBase {
       ]), 'admin/structure/demo', t('This action cannot be undone.'), t('Delete'));
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   * {@inheritdoc}.
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+  }
+
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $files = demo_get_fileconfig($form_state->getValue(['filename']));
     unlink($files['sqlfile']);
     unlink($files['infofile']);

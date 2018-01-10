@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Drupal\demo\Controller;
 
@@ -9,6 +9,9 @@ use Drupal\Core\Controller\ControllerBase;
  */
 class DefaultController extends ControllerBase {
 
+  /**
+   *
+   */
   public function demo_autocomplete($string = '') {
     $matches = [];
     if ($string && $fileconfig = demo_get_fileconfig()) {
@@ -21,6 +24,9 @@ class DefaultController extends ControllerBase {
     drupal_json_output($matches);
   }
 
+  /**
+   *
+   */
   public function demo_download($filename, $type) {
     $fileconfig = demo_get_fileconfig($filename);
     if (!isset($fileconfig[$type . 'file']) || !file_exists($fileconfig[$type . 'file'])) {

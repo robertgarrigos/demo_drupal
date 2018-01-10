@@ -6,6 +6,9 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class DemoAdminSettings extends ConfigFormBase {
 
   /**
@@ -15,6 +18,9 @@ class DemoAdminSettings extends ConfigFormBase {
     return 'demo_admin_settings';
   }
 
+  /**
+   *
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $form['demo_dump_path'] = [
@@ -24,15 +30,18 @@ class DemoAdminSettings extends ConfigFormBase {
       '#default_value' => \Drupal::state()->get('demo_dump_path', 'demo'),
       '#required' => TRUE,
     ];
-    
+
     return parent::buildForm($form, $form_state);
   }
 
+  /**
+   *
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!file_prepare_directory($form_state->getValue(['demo_dump_path']), FILE_CREATE_DIRECTORY)) {
       $form_state->setErrorByName('demo_dump_path', t('The snapshot directory %directory could not be created.', [
-        '%directory' => $form_state->getValue(['demo_dump_path'])
-        ]));
+        '%directory' => $form_state->getValue(['demo_dump_path']),
+      ]));
     }
   }
 

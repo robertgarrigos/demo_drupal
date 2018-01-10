@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Alter snapshot options before a snapshot is created.
  *
  * @param &$options

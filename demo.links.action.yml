@@ -2,4 +2,4 @@ demo.dump_form:
   route_name: demo.dump_form
   title: 'Create snapshot'
   appears_on:
-    - demo.dump_form
+    - demo.manage_form

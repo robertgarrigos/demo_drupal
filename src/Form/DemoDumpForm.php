@@ -4,8 +4,10 @@ namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class DemoDumpForm extends FormBase {
 
   /**
@@ -15,6 +17,9 @@ class DemoDumpForm extends FormBase {
     return 'demo_dump_form';
   }
 
+  /**
+   *
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
 
@@ -49,12 +54,15 @@ class DemoDumpForm extends FormBase {
         '%name' => $form_state->getValue([
           'dump',
           'filename',
-        ])
-        ]), 'admin/structure/demo', t('A snapshot with the same name already exists and will be replaced. This action cannot be undone.'));
+        ]),
+      ]), 'admin/structure/demo', t('A snapshot with the same name already exists and will be replaced. This action cannot be undone.'));
     }
     return $form;
   }
 
+  /**
+   *
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getValue(['confirm'])) {
       $fileconfig = demo_get_fileconfig($form_state->getValue([
@@ -68,13 +76,16 @@ class DemoDumpForm extends FormBase {
     }
   }
 
+  /**
+   *
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {
       drupal_set_message(t('Snapshot %filename has been created.', [
-        '%filename' => $form_state->getValue(['dump', 'filename'])
-        ]));
+        '%filename' => $form_state->getValue(['dump', 'filename']),
+      ]));
     }
-    $form_state->set(['redirect'], 'admin/structure/demo');
+    $form_state->setRedirect('demo.manage_form');
   }
 
 }

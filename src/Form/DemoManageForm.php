@@ -4,8 +4,10 @@ namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class DemoManageForm extends FormBase {
 
   /**
@@ -15,6 +17,9 @@ class DemoManageForm extends FormBase {
     return 'demo_manage_form';
   }
 
+  /**
+   *
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['status'] = [
       '#type' => 'container',
@@ -23,13 +28,13 @@ class DemoManageForm extends FormBase {
         'class' => [
           'demo-status',
           'clearfix',
-        ]
         ],
+      ],
       '#attached' => [
-        'css' => [
-          drupal_get_path('module', 'demo') . '/demo.admin.css'
-          ]
+        'library' => [
+          'demo/demo-library',
         ],
+      ],
     ];
     $reset_date = \Drupal::state()->get('demo_reset_last', 0);
     $form['status']['reset_last'] = [
@@ -45,8 +50,8 @@ class DemoManageForm extends FormBase {
       '#type' => 'submit',
       '#value' => t('Delete'),
       '#submit' => [
-        'demo_manage_delete_submit'
-        ],
+        'demo_manage_delete_submit',
+      ],
     ];
 
     // If there are no snapshots yet, hide the selection and form actions.

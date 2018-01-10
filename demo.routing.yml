@@ -5,6 +5,7 @@ demo.manage_form:
     _form: \Drupal\demo\Form\DemoManageForm
   requirements:
     _permission: 'administer demo settings'
+
 demo.dump_form:
   path: /admin/structure/demo/dump
   defaults:
@@ -12,6 +13,7 @@ demo.dump_form:
     _form: \Drupal\demo\Form\DemoDumpForm
   requirements:
     _permission: 'administer demo settings'
+
 demo.reset_confirm:
   path: /admin/structure/demo/reset
   defaults:
@@ -19,6 +21,7 @@ demo.reset_confirm:
     _form: \Drupal\demo\Form\DemoResetConfirm
   requirements:
     _permission: 'administer demo settings'
+
 demo.delete_confirm:
   path: '/admin/structure/demo/delete/{filename}'
   defaults:
@@ -26,6 +29,7 @@ demo.delete_confirm:
     _form: \Drupal\demo\Form\DemoDeleteConfirm
   requirements:
     _permission: 'administer demo settings'
+
 demo.admin_settings:
   path: /admin/structure/demo/settings
   defaults:
@@ -33,12 +37,14 @@ demo.admin_settings:
     _form: \Drupal\demo\Form\DemoAdminSettings
   requirements:
     _permission: 'administer demo settings'
+
 demo.autocomplete:
   path: /demo/autocomplete
   defaults:
     _controller: '\Drupal\demo\Controller\DefaultController::demo_autocomplete'
   requirements:
     _permission: 'administer demo settings'
+
 demo.download:
   path: /demo/download
   defaults:

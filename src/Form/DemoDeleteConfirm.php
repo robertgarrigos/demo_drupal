@@ -4,6 +4,9 @@ namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\ConfirmFormBase;
+use Drupal\Core\Url;
+use Drupal\Core\Render\Element;
 
 /**
  *
@@ -16,14 +19,15 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   public function getFormId() {
     return 'demo_delete_confirm';
   }
-
+  
+  public $filename;
   /**
    *
    */
   public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
     if (!file_exists($fileconfig['infofile'])) {
-      return drupal_access_denied();
+      drupal_set_message(t('File not found'), 'error');
     }
 
     $form['filename'] = [
@@ -31,9 +35,6 @@ class DemoDeleteConfirm extends ConfirmFormBase {
       '#value' => $filename,
     ];
     return parent::buildForm($form, $form_state);
-    // return confirm_form($form, t('Are you sure you want to delete the snapshot %title?', [
-    //   '%title' => $filename,
-    // ]), 'admin/structure/demo', t('This action cannot be undone.'), t('Delete'));
   }
 
   /**
@@ -53,22 +54,21 @@ class DemoDeleteConfirm extends ConfirmFormBase {
     drupal_set_message(t('Snapshot %title has been deleted.', [
       '%title' => $form_state->getValue(['filename']),
     ]));
-    $form_state->set(['redirect'], 'admin/structure/demo');
+    $form_state->setRedirect('demo.manage_form');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('demo.demo.manage_form');
+    return new Url('demo.manage_form');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Do you want to delete %title?', [
-      '%title' => $form_state->getValue(['filename']);
+    return t('Do you want to delete this screenshot?');
   }
 
   /**

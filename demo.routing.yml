@@ -46,8 +46,13 @@ demo.autocomplete:
     _permission: 'administer demo settings'
 
 demo.download:
-  path: /demo/download
+  path: /demo/download/{filename}/{type}
   defaults:
     _controller: '\Drupal\demo\Controller\DefaultController::demo_download'
+  requirements:
+    _permission: 'administer demo settings'
+
+demo.cron:
+  path: /admin/config/system/cron
   requirements:
     _permission: 'administer demo settings'

@@ -30,13 +30,13 @@ class DemoManageForm extends FormBase {
           'clearfix',
         ],
       ],
-      '#attached' => [
-        'library' => [
+      '#attached' => array(
+        'library' => array(
           'demo/demo-library',
-        ],
-      ],
+        ),
+      ),
     ];
-    $reset_date = \Drupal::state()->get('demo_reset_last', 0);
+    $reset_date = \Drupal::config('demo.settings')->get('demo_reset_last', 0);
     $form['status']['reset_last'] = [
       '#type' => 'item',
       '#title' => t('Last reset'),
@@ -49,9 +49,7 @@ class DemoManageForm extends FormBase {
     $form['actions']['delete'] = [
       '#type' => 'submit',
       '#value' => t('Delete'),
-      '#submit' => [
-        'demo_manage_delete_submit',
-      ],
+      '#submit' => ['demo_manage_delete_submit'],
     ];
 
     // If there are no snapshots yet, hide the selection and form actions.

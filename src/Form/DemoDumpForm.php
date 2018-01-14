@@ -43,27 +43,11 @@ class DemoDumpForm extends FormBase {
     ];
 
     $form['actions'] = ['#type' => 'actions'];
-      $form['actions']['submit'] = [
-        '#type' => 'submit',
-        '#value' => t('Create'),
-      ];
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Create'),
+    ];
 
-    // if (!$form_state->get(['demo', 'dump_exists'])) {
-    //   $form['actions'] = ['#type' => 'actions'];
-    //   $form['actions']['submit'] = [
-    //     '#type' => 'submit',
-    //     '#value' => t('Create'),
-    //   ];
-    // }
-    // else {
-    //   return $form;
-    //   // $form = confirm_form($form, t('Are you sure you want to replace the existing %name snapshot?', [
-    //   //   '%name' => $form_state->getValue([
-    //   //     'dump',
-    //   //     'filename',
-    //   //   ]),
-    //   // ]), 'admin/structure/demo', t('A snapshot with the same name already exists and will be replaced. This action cannot be undone.'));
-    // }
     return $form;
   }
 

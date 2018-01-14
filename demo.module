@@ -1,19 +1,23 @@
 <?php
 
-use Drupal\Core;
+/**
+ * @file
+ */
+
 use Drupal\Core\Url;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Database\Database;
-use Drupal\Core\Extension\Extension;
+
 /**
  * @file
  */
 define('DEMO_DUMP_VERSION', '1.1');
 define('VERSION', '8');
+
 /**
  *
  */
-function demo_get_fileconfig($filename = 'demo_site') {
+function demo_get_fileconfig($filename = 'Set default value') {
   $fileconfig = [];
 
   // Build dump path.
@@ -28,15 +32,9 @@ function demo_get_fileconfig($filename = 'demo_site') {
   }
   $fileconfig['path'] = 'private://' . \Drupal::config('demo.settings')->get('demo_dump_path', 'demo');
   $fileconfig['dumppath'] = $fileconfig['path'];
-  // @todo Update to D7?
   // Append site name if it is not included in file_directory_path() and if not
   // storing files in sites/all/files.
   $fileconfig['site'] = str_replace('sites', '', \Drupal::service('site.path'));
-  /*
-  if (strpos($fileconfig['path'], conf_path()) === FALSE && strpos($fileconfig['path'], '/all/') === FALSE) {
-  $fileconfig['dumppath'] .= $fileconfig['site'];
-  }
-   */
 
   // Check if directory exists.
   if (!file_prepare_directory($fileconfig['dumppath'], FILE_CREATE_DIRECTORY)) {
@@ -80,14 +78,14 @@ function demo_get_dumps() {
     '#required' => TRUE,
     '#parents' => ['filename'],
     '#options' => [],
-    '#attributes' => array(
-      'class' => array('demo-snapshots-widget'),
-    ),
-    '#attached' => array(
-      'library' => array(
-        'demo/demo-library'
-      ),
-    ),
+    '#attributes' => [
+      'class' => ['demo-snapshots-widget'],
+    ],
+    '#attached' => [
+      'library' => [
+        'demo/demo-library',
+      ],
+    ],
   ];
 
   foreach ($files as $filename => $file) {
@@ -106,9 +104,9 @@ function demo_get_dumps() {
       $description .= '<p>' . $info['description'] . '</p>';
     }
     // Add download links.
-    $download_sql_url = Url::fromRoute('demo.download',$route_parameters = array('filename' => $file->name, 'type' => 'sql'));
-    $download_info_url = Url::fromRoute('demo.download',$route_parameters = array('filename' => $file->name, 'type' => 'info'));
-    $description .= '<p>' . t('Download: '.\Drupal::l(t('.info file'), $download_info_url).', '.\Drupal::l(t('.sql file'), $download_sql_url)). '</p>';
+    $download_sql_url = Url::fromRoute('demo.download', $route_parameters = ['filename' => $file->name, 'type' => 'sql']);
+    $download_info_url = Url::fromRoute('demo.download', $route_parameters = ['filename' => $file->name, 'type' => 'info']);
+    $description .= '<p>' . t('Download: ' . \Drupal::l(t('.info file'), $download_info_url) . ', ' . \Drupal::l(t('.sql file'), $download_sql_url)) . '</p>';
     // Add module list.
     if (count($info['modules']) > 1) {
       // Remove required core modules and Demo from module list.
@@ -240,8 +238,8 @@ function _demo_dump_table_schema($fp, $table) {
   $output .= "--\n\n";
   $connection = \Drupal::database();
   // $data = $connection->query('SHOW CREATE TABLE :table', array(':table' => $table))->fetchAssoc();
-  $data = $connection->query('SHOW CREATE TABLE '.$table)->fetchAssoc();
-  $status = $connection->query('SHOW TABLE STATUS LIKE :table', array(':table' => $table))->fetchAssoc();
+  $data = $connection->query('SHOW CREATE TABLE ' . $table)->fetchAssoc();
+  $status = $connection->query('SHOW TABLE STATUS LIKE :table', [':table' => $table])->fetchAssoc();
 
   // Column keys in $status start with a lower-case letter in PDO and with a
   // upper-case letter otherwise. We convert all to lower-case.
@@ -254,8 +252,8 @@ function _demo_dump_table_schema($fp, $table) {
   }
 
   // Add IF NOT EXISTS to CREATE TABLE, replace double quotes with MySQL quotes.
-  $pattern_regex = array('/^CREATE TABLE/', '/"/');
-  $replacement_regex = array('CREATE TABLE IF NOT EXISTS', '`');
+  $pattern_regex = ['/^CREATE TABLE/', '/"/'];
+  $replacement_regex = ['CREATE TABLE IF NOT EXISTS', '`'];
   $text = $data['Create Table'];
 
   $output .= preg_replace($pattern_regex, $replacement_regex, $text);
@@ -297,20 +295,19 @@ function _demo_dump_table_schema($fp, $table) {
   //   else {
   //     $output .= ' DEFAULT CHARSET=utf8 ' . $collate;
   //   }
-  // }
-
+  // }.
   // Add the table comment, if any.
   if (!preg_match('@^\) .*COMMENT.+$@', $output) && !empty($status['comment'])) {
     // On PHP 5.2.6/Win32 with PDO MySQL 5.0 with InnoDB, the table comment has
     // a trailing "; InnoDB free: 84992 kB".
-    $status['comment'] = preg_replace(array('@; InnoDB free: .+$@', "/\'/"), array('', '`'), $status['comment']);
+    $status['comment'] = preg_replace(['@; InnoDB free: .+$@', "/\'/"], ['', '`'], $status['comment']);
     $output .= " COMMENT='" . $status['comment'] . "'";
   }
 
   // @todo Depends on whether we dump data and table existence on import.
-    if (!empty($status['auto_increment'])) {
-     $output .= ' AUTO_INCREMENT=' . $status['auto_increment'];
-   }
+  if (!empty($status['auto_increment'])) {
+    $output .= ' AUTO_INCREMENT=' . $status['auto_increment'];
+  }
   $output .= ";\n";
   fwrite($fp, $output);
 }
@@ -607,11 +604,10 @@ function _demo_dump($options) {
   drupal_chmod($fileconfig['sqlfile']);
 
   // Allow other modules to act on successful dumps.
-  Drupal::moduleHandler()->invokeAll('demo_dump', array($options, $info, $fileconfig));
+  Drupal::moduleHandler()->invokeAll('demo_dump', [$options, $info, $fileconfig]);
 
   return $fileconfig;
 }
-
 
 /**
  *
@@ -626,8 +622,8 @@ function demo_set_info($values = NULL) {
 
     if (!empty($values['description'])) {
       // parse_ini_file() doesn't allow certain characters in description.
-      $s = array("\r\n", "\r", "\n", '"');
-      $r = array(' ', ' ', ' ', "'");
+      $s = ["\r\n", "\r", "\n", '"'];
+      $r = [' ', ' ', ' ', "'"];
       $values['description'] = str_replace($s, $r, $values['description']);
     }
     else {
@@ -640,10 +636,10 @@ function demo_set_info($values = NULL) {
     }
 
     // Set values.
-    $infos = array();
+    $infos = [];
     $infos['filename'] = $values['filename'];
     $infos['description'] = '"' . $values['description'] . '"';
-    $infos['modules'] = implode(' ',getModuleNames());
+    $infos['modules'] = implode(' ', getModuleNames());
     $infos['version'] = DEMO_DUMP_VERSION;
 
     // Write information to .info file.
@@ -658,9 +654,11 @@ function demo_set_info($values = NULL) {
   }
 }
 
-// to get module directories
+/**
+ * To get module directories.
+ */
 function getModuleNames() {
-  $dirs = array();
+  $dirs = [];
   foreach (\Drupal::moduleHandler()->getModuleList() as $module => $filename) {
     $dirs[$module] = $filename->getExtensionFilename();
   }
@@ -671,7 +669,7 @@ function getModuleNames() {
  *
  */
 function demo_get_info($filename, $field = NULL) {
-  $info = array();
+  $info = [];
 
   if (file_exists($filename)) {
     $info = parse_ini_file($filename);
@@ -701,9 +699,9 @@ function demo_get_info($filename, $field = NULL) {
  */
 function demo_manage_delete_submit($form, &$form_state) {
   $filename = $form_state->getValue(['filename']);
-  $url = Url::fromRoute('demo.delete_confirm',$route_parameters = array('filename' => $filename));
+  $url = Url::fromRoute('demo.delete_confirm', $route_parameters = ['filename' => $filename]);
   $form_state->setRedirectUrl($url);
-    return;
+  return;
 }
 
 /**
@@ -726,26 +724,26 @@ function _demo_reset($filename, $verbose = TRUE) {
   $fileconfig = demo_get_fileconfig($filename);
   if (!file_exists($fileconfig['sqlfile']) || !($fp = fopen($fileconfig['sqlfile'], 'r'))) {
     if ($verbose) {
-      drupal_set_message(t('Unable to read file %filename.', array(
+      drupal_set_message(t('Unable to read file %filename.', [
         '%filename' => $fileconfig['sqlfile'],
-      )), 'error');
+      ]), 'error');
     }
 
-    \Drupal::logger('demo')->error('Unable to read file %filename.', array('%filename' => $fileconfig['sqlfile']));
+    \Drupal::logger('demo')->error('Unable to read file %filename.', ['%filename' => $fileconfig['sqlfile']]);
     return FALSE;
   }
 
   // Load any database information in front of reset.
   $info = demo_get_info($fileconfig['infofile']);
-  Drupal::moduleHandler()->invokeAll('demo_reset_before', array($filename, $info, $fileconfig));
+  Drupal::moduleHandler()->invokeAll('demo_reset_before', [$filename, $info, $fileconfig]);
 
   // Retain special variables, so the (demonstration) site keeps operating after
   // the reset. Specify NULL instead of default values, so unconfigured
   // variables are not retained, resp., deleted after the reset.
-  $variables = array(
+  $variables = [
     // Without the snapshot path, subsequent resets will not work.
     'demo_dump_path' => \Drupal::config('demo.settings')->get('demo_dump_path', NULL),
-  );
+  ];
 
   // Temporarily disable foreign key checks for the time of import and before
   // dropping existing tables. Foreign key checks should already be re-enabled
@@ -771,16 +769,16 @@ function _demo_reset($filename, $verbose = TRUE) {
     if ($line && $line != "\n" && strncmp($line, '--', 2) && strncmp($line, '#', 1)) {
       $query .= $line;
       if (substr($line, -2) == ";\n") {
-        $options = array(
+        $options = [
           'target' => 'default',
           'return' => Database::RETURN_NULL,
           // 'throw_exception' => FALSE,.
-        );
+        ];
         $stmt = Database::getConnection($options['target'])->prepare($query);
-        if (!$stmt->execute(array(), $options)) {
+        if (!$stmt->execute([], $options)) {
           if ($verbose) {
             // Don't use t() here, as the locale_* tables might not (yet) exist.
-            drupal_set_message(strtr('Query failed: %query', array('%query' => $query)), 'error');
+            drupal_set_message(strtr('Query failed: %query', ['%query' => $query]), 'error');
           }
           $success = FALSE;
         }
@@ -789,8 +787,8 @@ function _demo_reset($filename, $verbose = TRUE) {
     }
   }
   fclose($fp);
-
   // Retain variables.
+  // @todo check default value of private dump path.
   foreach ($variables as $key => $value) {
     if (isset($value)) {
       \Drupal::service('config.factory')->getEditable('demo.settings')->set($key, $value)->save();
@@ -802,26 +800,38 @@ function _demo_reset($filename, $verbose = TRUE) {
 
   if ($success) {
     if ($verbose) {
-      drupal_set_message(t('Restored site from %filename.', array('%filename' => $fileconfig['sqlfile'])));
+      drupal_set_message(t('Restored site from %filename.', ['%filename' => $fileconfig['sqlfile']]));
     }
-    \Drupal::logger('demo')->notice('Restored site from %filename.', array('%filename' => $fileconfig['sqlfile']));
+    \Drupal::logger('demo')->notice('Restored site from %filename.', ['%filename' => $fileconfig['sqlfile']]);
 
     // Allow other modules to act on successful resets.
-    Drupal::moduleHandler()->invokeAll('demo_reset', array($filename, $info, $fileconfig));
+    Drupal::moduleHandler()->invokeAll('demo_reset', [$filename, $info, $fileconfig]);
+
+    // Save request time of last reset, but not during re-installation via
+    // demo_profile.
+    if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE !== 'install') {
+      \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_reset_last', REQUEST_TIME)->save();
+      $demo_dump_cron = \Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value');
+      \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_dump_cron', $demo_dump_cron)->save();
+    }
   }
   else {
     if ($verbose) {
-      drupal_set_message(t('Failed to restore site from %filename.', array('%filename' => $fileconfig['sqlfile'])), 'error');
+      drupal_set_message(t('Failed to restore site from %filename.', ['%filename' => $fileconfig['sqlfile']]), 'error');
     }
-    \Drupal::logger('demo')->error('Unable to read file %filename.', array('%filename' => $fileconfig['sqlfile']));
+    \Drupal::logger('demo')->error('Unable to read file %filename.', ['%filename' => $fileconfig['sqlfile']]);
 
-  // Save request time of last reset, but not during re-installation via
-  // demo_profile.
-  if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE !== 'install') {
-    \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_reset_last', REQUEST_TIME)->save();
-  }
+    // Save request time of last reset, but not during re-installation via
+    // demo_profile.
+    if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE !== 'install') {
 
-  return $success;
+      $request_time = \Drupal::request()->server->getRequestTime();
+      \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_reset_last', REQUEST_TIME)->save();
+      $demo_dump_cron = \Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value');
+      \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_dump_cron', $demo_dump_cron)->save();
+    }
+
+    return $success;
   }
 }
 
@@ -831,8 +841,9 @@ function _demo_reset($filename, $verbose = TRUE) {
 function demo_reset_cron() {
   if ($interval = \Drupal::config('demo.settings')->get('demo_reset_interval', 0)) {
     // See if it's time for a reset.
+    $request_time = \Drupal::request()->server->getRequestTime();
     if ((REQUEST_TIME - $interval) >= \Drupal::config('demo.settings')->get('demo_reset_last', 0)) {
-      demo_reset(\Drupal::config('demo.settings')->get('demo_dump_cron', 'demo_site'), FALSE);
+      demo_reset(\Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value'), FALSE);
     }
   }
 }
@@ -841,60 +852,33 @@ function demo_reset_cron() {
  * Implements hook_form_FORMID_alter().
  */
 function demo_form_alter(&$form, &$form_state, $form_id) {
-  if($form_id == 'demo_manage_form'){
-    $form['status']['demo_reset_default'] = array(
+  if ($form_id == 'demo_manage_form') {
+
+    $form['status']['demo_reset_default'] = [
       '#type' => 'item',
       '#title' => t('Default snapshot'),
       '#markup' => SafeMarkup::checkPlain(\Drupal::config('demo.settings')->get('demo_dump_cron', t('- None -'))),
-    );
+    ];
 
-    $demo_dump_cron = \Drupal::config('demo.settings')->get('demo_dump_cron', 'demo_site');
+    $demo_dump_cron = \Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value');
     foreach ($form['dump'] as $name => $option) {
       if ($name == $demo_dump_cron) {
         $form['dump'][$name]['#value'] = $name;
         break;
       }
     }
-    $form['actions']['cron'] = array(
+    $form['actions']['cron'] = [
       '#type' => 'submit',
       '#value' => t('Use for cron runs'),
-      '#submit' => array('demo_reset_demo_manage_form_submit'),
-    );
+      '#submit' => ['demo_reset_demo_manage_form_submit'],
+    ];
   }
 
-  elseif($form_id == 'demo_dump_form'){
-    $form['dump']['default'] = array(
+  elseif ($form_id == 'demo_dump_form') {
+    $form['dump']['default'] = [
       '#title' => t('Use as default snapshot for cron runs'),
       '#type' => 'checkbox',
-    );
-  }
-
-  elseif($form_id == 'demo_admin_settings'){
-    $intervals = array(
-    // 0, 5, 10, 15, 30 minutes.
-    0, 300, 600, 900, 1800,
-    // 1-6, 9, 12 hours.
-    3600, 3600 * 2, 3600 * 3, 3600 * 4, 3600 * 5, 3600 * 6, 3600 * 9, 3600 * 12,
-    // 1-3 days.
-    86400, 86400 * 2, 86400 * 3,
-    // 1, 2, 3 weeks.
-    604800, 604800 * 2, 604800 * 3,
-    // 1, 3 months.
-    86400 * 30, 86400 * 90,
-  );
-
-  //$intervals = drupal_map_assoc($intervals, array('format_interval'));
-  $demo_manage_form_url = Url::fromRoute('demo.manage_form');
-  $cron_url = Url::fromRoute('demo.cron');
-  $form['demo_reset_interval'] = array(
-    '#type' => 'select',
-    '#title' => t('Automatic reset interval'),
-    '#required' => FALSE,
-    '#default_value' => \Drupal::config('demo.settings')->get('demo_reset_interval', 0),
-    //'#options' => $time_intervals,
-    '#empty_value' => 0,
-    '#description' => t('Requires a '.\Drupal::l(t('default snapshot'), $demo_manage_form_url).' and '.\Drupal::l(t('cron'), $cron_url).' to run in the configured interval.'),
-  );
+    ];
   }
 }
 
@@ -913,5 +897,20 @@ function demo_reset_demo_manage_form_submit($form, &$form_state) {
  */
 function demo_reset_set_default($filename) {
   \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_dump_cron', $filename)->save();
-  drupal_set_message(t('Snapshot %title will be used for cron runs.', array('%title' => $filename)));
+
+  drupal_set_message(t('Snapshot %title will be used for cron runs.', ['%title' => $filename]));
+}
+
+/**
+ * Build options for cron interval.
+ *
+ * @param $intervals
+ *   The filename of the snapshot.
+ */
+function build_options(array $intervals, $granularity = 2, $langcode = NULL) {
+  $callback = function ($value) use ($granularity, $langcode) {
+    return \Drupal::service('date.formatter')->formatInterval($value, $granularity, $langcode);
+  };
+
+  return array_combine($intervals, array_map($callback, $intervals));
 }

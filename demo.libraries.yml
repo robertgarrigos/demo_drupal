@@ -1,5 +1,5 @@
 demo-library:
-  version: 1.x
+  version: '1.0'
   css:
     theme:
       css/admin.css: {}

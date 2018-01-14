@@ -2,11 +2,9 @@
 
 namespace Drupal\demo\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Url;
-use Drupal\Core\Render\Element;
 
 /**
  *
@@ -19,8 +17,9 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   public function getFormId() {
     return 'demo_delete_confirm';
   }
-  
+
   public $filename;
+
   /**
    *
    */
@@ -74,7 +73,7 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  function getConfirmText() {
+  public function getConfirmText() {
     return t('Delete');
   }
 

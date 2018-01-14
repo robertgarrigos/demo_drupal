@@ -30,11 +30,11 @@ class DemoManageForm extends FormBase {
           'clearfix',
         ],
       ],
-      '#attached' => array(
-        'library' => array(
+      '#attached' => [
+        'library' => [
           'demo/demo-library',
-        ),
-      ),
+        ],
+      ],
     ];
     $reset_date = \Drupal::config('demo.settings')->get('demo_reset_last', 0);
     $form['status']['reset_last'] = [

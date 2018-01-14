@@ -8,4 +8,3 @@
 if (!defined('MYSQLI_BINARY_FLAG')) {
   define('MYSQLI_BINARY_FLAG', 128);
 }
-

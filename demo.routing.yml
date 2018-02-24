@@ -1,21 +1,43 @@
-demo.manage_form:
-  path: /admin/structure/demo
+demo.snapshots:
+  path: '/admin/structure/snapshots'
   defaults:
-    _title: Snapshots
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Snapshots'
+  requirements:
+    _permission: 'access administration pages'
+
+
+demo.manage_form:
+  path: /admin/structure/snapshots/demo
+  defaults:
+    _title: Database Snapshots
     _form: \Drupal\demo\Form\DemoManageForm
   requirements:
     _permission: 'administer demo settings'
 
-demo.dump_form:
-  path: /admin/structure/demo/dump
+demo.manage_config:
+  path: /admin/structure/snapshots/config
   defaults:
-    _title: 'Create snapshot'
+    _title: Configuration Snapshot
+    _form: \Drupal\demo\Form\DemoConfigManageForm
+  requirements:
+    _permission: 'administer demo settings'    
+
+demo.export_download:
+  path: '/admin/structure/snapshots/config/export-download'
+  defaults:
+    _controller: '\Drupal\demo\Controller\ConfigDownloadController::downloadExport'
+  requirements:
+    _permission: 'export configuration'
+demo.dump_form:
+  path: /admin/structure/snapshots/demo/dump
+  defaults:
+    _title: 'Create Database snapshot'
     _form: \Drupal\demo\Form\DemoDumpForm
   requirements:
     _permission: 'administer demo settings'
-
 demo.reset_confirm:
-  path: /admin/structure/demo/reset
+  path: /admin/structure/snapshots/demo/reset
   defaults:
     _title: Reset
     _form: \Drupal\demo\Form\DemoResetConfirm
@@ -23,7 +45,7 @@ demo.reset_confirm:
     _permission: 'administer demo settings'
 
 demo.delete_confirm:
-  path: '/admin/structure/demo/delete/{filename}'
+  path: '/admin/structure/snapshots/demo/delete/{filename}'
   defaults:
     _title: 'Delete snapshot'
     _form: \Drupal\demo\Form\DemoDeleteConfirm
@@ -31,7 +53,7 @@ demo.delete_confirm:
     _permission: 'administer demo settings'
 
 demo.admin_settings:
-  path: /admin/structure/demo/settings
+  path: /admin/structure/snapshots/demo/settings
   defaults:
     _title: Settings
     _form: \Drupal\demo\Form\DemoAdminSettings
@@ -52,7 +74,34 @@ demo.download:
   requirements:
     _permission: 'administer demo settings'
 
-demo.cron:
-  path: /admin/config/system/cron
+demo.reset_config_confirm:
+  path: /admin/structure/snapshots/config/reset
+  defaults:
+    _title: Reset
+    _form: \Drupal\demo\Form\DemoConfigResetConfirm
+  requirements:
+    _permission: 'administer demo settings'
+
+demo.config_sync:
+  path: '/admin/structure/snapshots/config/configuration'
+  defaults:
+    _form: '\Drupal\demo\Form\changesync'
+    _title: 'Synchronize'
+  requirements:
+    _permission: 'administer demo settings'
+
+demo.delete_config_confirm:
+  path: '/admin/structure/snapshots/config/delete'
+  defaults:
+    _form: '\Drupal\demo\Form\deleteConfig'
+    _title: 'Delete'
+  requirements:
+    _permission: 'administer demo settings'
+
+demo.delete_config_confirm_sub:
+  path: '/admin/structure/snapshots/config/delete/{filename}'
+  defaults:
+    _title: 'Delete snapshot'
+    _form: \Drupal\demo\Form\ConfigDeleteConfirm
   requirements:
     _permission: 'administer demo settings'

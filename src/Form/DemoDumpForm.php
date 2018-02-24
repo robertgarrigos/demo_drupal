@@ -4,7 +4,7 @@ namespace Drupal\demo\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-
+use Drupal\demo\demobase;
 /**
  *
  */
@@ -22,6 +22,7 @@ class DemoDumpForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
+
 
     $form['dump']['filename'] = [
       '#title' => t('Name'),
@@ -72,12 +73,12 @@ class DemoDumpForm extends FormBase {
    *
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {
-      drupal_set_message(t('Snapshot %filename has been created.', [
-        '%filename' => $form_state->getValue(['dump', 'filename']),
-      ]));
-    }
-    $form_state->setRedirect('demo.manage_form');
+      if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {
+        drupal_set_message(t('Snapshot %filename has been created.', [
+          '%filename' => $form_state->getValue(['dump', 'filename']),
+        ]));
+      }
+      $form_state->setRedirect('demo.manage_form');
   }
 
 }

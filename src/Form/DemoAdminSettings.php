@@ -40,7 +40,7 @@ class DemoAdminSettings extends ConfigFormBase {
 
     $options = build_options($intervals);
     $demo_manage_form_url = Url::fromRoute('demo.manage_form');
-    $cron_url = Url::fromRoute('demo.cron');
+    $cron_url = Url::fromRoute('system.cron_settings');
     $form['demo_reset_interval'] = [
       '#type' => 'select',
       '#title' => t('Automatic reset interval'),

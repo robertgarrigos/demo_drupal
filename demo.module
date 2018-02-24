@@ -3,11 +3,11 @@
 /**
  * @file
  */
-
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Database\Database;
-
+use Drupal\Core\File; 
 /**
  * @file
  */
@@ -15,7 +15,7 @@ define('DEMO_DUMP_VERSION', '1.1');
 define('VERSION', '8');
 
 /**
- *
+ * Get the file directory information 
  */
 function demo_get_fileconfig($filename = 'Set default value') {
   $fileconfig = [];
@@ -25,7 +25,7 @@ function demo_get_fileconfig($filename = 'Set default value') {
     // @todo Temporarily throwing a form error here.
     // Don't break demo_profile.
     if (!defined('MAINTENANCE_MODE')) {
-      drupal_set_message(t('The <a href="/admin/config/media/file-system">private filesystem</a> must be configured in order to create or load snapshots.'
+      drupal_set_message(t('The <a href="../config/media/file-system">private filesystem</a> must be configured in order to create or load snapshots.'
        ), 'warning');
     }
     return FALSE;
@@ -56,7 +56,7 @@ function demo_get_fileconfig($filename = 'Set default value') {
 }
 
 /**
- *
+ * Get all the dumps from the private directory.
  */
 function demo_get_dumps() {
   $fileconfig = demo_get_fileconfig();
@@ -80,7 +80,7 @@ function demo_get_dumps() {
     '#options' => [],
     '#attributes' => [
       'class' => ['demo-snapshots-widget'],
-    ],
+      ],
     '#attached' => [
       'library' => [
         'demo/demo-library',
@@ -96,7 +96,7 @@ function demo_get_dumps() {
       '@snapshot' => $info['filename'],
       '@date' => format_date($file->filemtime, 'small'),
       '@aize' => format_size($file->filesize),
-    ]);
+      ]);
 
     // Prepare snapshot description.
     $description = '';
@@ -115,16 +115,15 @@ function demo_get_dumps() {
       sort($modules);
       $description .= t('Modules: @modules', ['@modules' => implode(', ', $modules)]);
     }
-
     // Add the radio option element.
     $element['#options'][$info['filename']] = $title;
     $element[$info['filename']] = [
-      '#description' => $description,
-      '#file' => $file,
-      '#info' => $info,
+    '#description' => $description,
+    '#file' => $file,
+    '#info' => $info,
     ];
+    
   }
-
   return $element;
 }
 
@@ -421,25 +420,25 @@ function _demo_get_fields($result) {
 
   switch (db_driver()) {
     case 'mysql':
-      $i = 0;
-      while ($meta = $result->getColumnMeta($i)) {
-        settype($meta, 'object');
+    $i = 0;
+    while ($meta = $result->getColumnMeta($i)) {
+      settype($meta, 'object');
         // pdo_mysql does not add a native type for INT fields.
-        if (isset($meta->native_type)) {
+      if (isset($meta->native_type)) {
           // Enhance the field definition for mysql-extension compatibilty.
-          $meta->numeric = (strtolower($meta->native_type) == 'short');
-          $meta->blob = (strtolower($meta->native_type) == 'blob');
+        $meta->numeric = (strtolower($meta->native_type) == 'short');
+        $meta->blob = (strtolower($meta->native_type) == 'blob');
           // Add custom properties.
-          $meta->timestamp = (strtolower($meta->native_type) == 'long');
-        }
-        else {
-          $meta->numeric = $meta->blob = $meta->timestamp = FALSE;
-        }
-        $meta->binary = (array_search('not_null', $meta->flags));
-        $fields[] = $meta;
-        $i++;
+        $meta->timestamp = (strtolower($meta->native_type) == 'long');
       }
-      break;
+      else {
+        $meta->numeric = $meta->blob = $meta->timestamp = FALSE;
+      }
+      $meta->binary = (array_search('not_null', $meta->flags));
+      $fields[] = $meta;
+      $i++;
+    }
+    break;
   }
 
   return $fields;
@@ -520,36 +519,36 @@ function demo_enum_tables() {
   // Apply default exclude list.
   $excludes = [
     // Drupal core.
-    '{cache}',
-    '{cache_bootstrap}',
-    '{cache_block}',
-    '{cache_content}',
-    '{cache_field}',
-    '{cache_filter}',
-    '{cache_form}',
-    '{cache_menu}',
-    '{cache_page}',
-    '{cache_path}',
-    '{cache_update}',
-    '{watchdog}',
+  '{cache}',
+  '{cache_bootstrap}',
+  '{cache_block}',
+  '{cache_content}',
+  '{cache_field}',
+  '{cache_filter}',
+  '{cache_form}',
+  '{cache_menu}',
+  '{cache_page}',
+  '{cache_path}',
+  '{cache_update}',
+  '{watchdog}',
     // CTools.
-    '{ctools_object_cache}',
+  '{ctools_object_cache}',
     // Administration menu.
-    '{cache_admin_menu}',
+  '{cache_admin_menu}',
     // Panels.
-    '{panels_object_cache}',
+  '{panels_object_cache}',
     // Views.
-    '{cache_views}',
-    '{cache_views_data}',
-    '{views_object_cache}',
-    '{cache_config}',
-    '{cache_container}',
-    '{cache_data}',
-    '{cache_default}',
-    '{cache_discovery}',
-    '{cache_render}',
-    '{cachetags}',
-    '{cache_entity}',
+  '{cache_views}',
+  '{cache_views_data}',
+  '{views_object_cache}',
+  '{cache_config}',
+  '{cache_container}',
+  '{cache_data}',
+  '{cache_default}',
+  '{cache_discovery}',
+  '{cache_render}',
+  '{cachetags}',
+  '{cache_entity}',
   ];
   foreach (array_map([$connection, 'prefixTables'], $excludes) as $table) {
     if (isset($tables[$table])) {
@@ -673,7 +672,6 @@ function demo_get_info($filename, $field = NULL) {
 
   if (file_exists($filename)) {
     $info = parse_ini_file($filename);
-
     if (isset($info['modules'])) {
       $info['modules'] = explode(" ", $info['modules']);
     }
@@ -705,6 +703,18 @@ function demo_manage_delete_submit($form, &$form_state) {
 }
 
 /**
+ * Delete button submit handler for demo_manage_form().
+ */
+function demo_config_delete_submit($form, &$form_state) {
+  $filename = $form_state->getValue(['filename']);
+  $filename=substr($filename,15);
+  $url = Url::fromRoute('demo.delete_config_confirm_sub', $route_parameters = ['filename' => $filename]);
+  
+  $form_state->setRedirectUrl($url);
+  return;
+}
+
+/**
  * Reset site using snapshot.
  *
  * @param $filename
@@ -726,7 +736,7 @@ function _demo_reset($filename, $verbose = TRUE) {
     if ($verbose) {
       drupal_set_message(t('Unable to read file %filename.', [
         '%filename' => $fileconfig['sqlfile'],
-      ]), 'error');
+        ]), 'error');
     }
 
     \Drupal::logger('demo')->error('Unable to read file %filename.', ['%filename' => $fileconfig['sqlfile']]);
@@ -742,7 +752,7 @@ function _demo_reset($filename, $verbose = TRUE) {
   // variables are not retained, resp., deleted after the reset.
   $variables = [
     // Without the snapshot path, subsequent resets will not work.
-    'demo_dump_path' => \Drupal::config('demo.settings')->get('demo_dump_path', NULL),
+  'demo_dump_path' => \Drupal::config('demo.settings')->get('demo_dump_path', NULL),
   ];
 
   // Temporarily disable foreign key checks for the time of import and before
@@ -770,8 +780,8 @@ function _demo_reset($filename, $verbose = TRUE) {
       $query .= $line;
       if (substr($line, -2) == ";\n") {
         $options = [
-          'target' => 'default',
-          'return' => Database::RETURN_NULL,
+        'target' => 'default',
+        'return' => Database::RETURN_NULL,
           // 'throw_exception' => FALSE,.
         ];
         $stmt = Database::getConnection($options['target'])->prepare($query);
@@ -855,9 +865,9 @@ function demo_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'demo_manage_form') {
 
     $form['status']['demo_reset_default'] = [
-      '#type' => 'item',
-      '#title' => t('Default snapshot'),
-      '#markup' => SafeMarkup::checkPlain(\Drupal::config('demo.settings')->get('demo_dump_cron', t('- None -'))),
+    '#type' => 'item',
+    '#title' => t('Default snapshot'),
+    '#markup' => SafeMarkup::checkPlain(\Drupal::config('demo.settings')->get('demo_dump_cron', t('- None -'))),
     ];
 
     $demo_dump_cron = \Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value');
@@ -868,16 +878,16 @@ function demo_form_alter(&$form, &$form_state, $form_id) {
       }
     }
     $form['actions']['cron'] = [
-      '#type' => 'submit',
-      '#value' => t('Use for cron runs'),
-      '#submit' => ['demo_reset_demo_manage_form_submit'],
+    '#type' => 'submit',
+    '#value' => t('Use for cron runs'),
+    '#submit' => ['demo_reset_demo_manage_form_submit'],
     ];
   }
 
   elseif ($form_id == 'demo_dump_form') {
     $form['dump']['default'] = [
-      '#title' => t('Use as default snapshot for cron runs'),
-      '#type' => 'checkbox',
+    '#title' => t('Use as default snapshot for cron runs'),
+    '#type' => 'checkbox',
     ];
   }
 }
@@ -913,4 +923,90 @@ function build_options(array $intervals, $granularity = 2, $langcode = NULL) {
   };
 
   return array_combine($intervals, array_map($callback, $intervals));
+}
+/**
+ * Implements hook_file_download().
+ */
+function demo_file_download($uri) {
+  $scheme = file_uri_scheme($uri);
+  $target = file_uri_target($uri);
+  if ($scheme == 'private') {
+    if (\Drupal::currentUser()->hasPermission('export configuration')) {
+      $request = \Drupal::request();
+      $date = DateTime::createFromFormat('U', $request->server->get('REQUEST_TIME'));
+      $date_string = $date->format('Y-m-d-H-i');
+      $hostname = str_replace('.', '-', $request->getHttpHost());
+      $filename = 'config' . '-' . $hostname . '-' . $date_string . '.tar.gz';
+      $disposition = 'attachment; filename="' . $filename . '"';
+      
+      return [
+      'Content-disposition' => $disposition,
+      ];
+    }
+    return -1;
+  }
+}
+function demo_get_config_dumps(){
+ $fileconfig = demo_get_fileconfig();
+
+  // Fetch list of available info files.
+ $files = file_scan_directory($fileconfig['dumppath'], '/\.tar.gz$/');
+ foreach ($files as $file => $object) {
+  $files[$file]->filemtime = filemtime($file);
+  $files[$file]->filesize = filesize(substr($file, 0, -7) . '.tar.gz');
+}
+  // Sort snapshots by date (ascending file modification time).
+uasort($files, create_function('$a, $b', 'return ($a->filemtime < $b->filemtime);'));
+
+$element = [
+'#type' => 'radios',
+'#title' => t('Snapshot'),
+'#required' => TRUE,
+'#parents' => ['filename'],
+'#options' => [],
+'#attributes' => [
+'class' => ['demo-snapshots-widget'],
+],
+'#attached' => [
+'library' => [
+'demo/demo-library',
+],
+],
+];
+
+foreach ($files as $filename => $file) {
+
+    // Prepare snapshot title.
+  $title = t('@snapshot <small>(@date, @aize)</small>', [
+    '@snapshot' => substr($filename,15),
+    '@date' => format_date($file->filemtime, 'small'),
+    '@aize' => format_size($file->filesize),
+    ]);
+    //print_r($filename);
+    // Add the radio option element.
+   // print_r($info);
+  $element['#options'][$filename] = $title;
+  $element[$filename] = [
+  '#file' => $file,
+  ];
+}
+  //print_r($element);
+  //die();
+return $element; 
+}
+
+/**
+ * Implements hook_help().
+ */
+function demo_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.demo':
+    $output = '';
+    $output .= '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('demonstration site module help to create snapshots of your drupal site. This will save the current version of your site and you can restore to this version later. ') . '</p>';
+    $output .= '<h3>' . t('Two Options of taking snapshots :-') . '</h3>';
+    $output .= '<p>' . t('<b>(1) Database Snapshots</b> Takes the snapshot of the whole database.All files will get stored in the private directory. On resetting, All the configuration settings and nodes will get restore.') . '</p>';
+    $output .= '<p>' . t('<b>(2) Configuration Snapshots</b> Takes the snapshot only of the configuration settings of your drupal site. All files will get stored in the private directory.On resetting the drupal site, this will only configuration setting will be restored. Nodes will remain as it is.') . '</p>';
+    return $output;
+  }
 }

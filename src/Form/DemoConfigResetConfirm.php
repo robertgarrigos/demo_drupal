@@ -1,28 +1,31 @@
 <?php
 
 namespace Drupal\demo\Form;
-
+use Drupal\Core\Archiver\ArchiveTar;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Url;
 
 /**
  *
  */
-class DemoResetConfirm extends ConfirmFormBase {
+class DemoConfigResetConfirm extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'demo_reset_confirm';
+    return 'demo_config_reset_confirm';
   }
 
   /**
    *
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['dump'] = demo_get_dumps();
+    $form['dump'] = demo_get_config_dumps();
 
     drupal_set_message(t('This action cannot be undone.'), 'warning');
 
@@ -46,12 +49,35 @@ class DemoResetConfirm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Reset site to chosen snapshot.
-    _demo_reset($form_state->getValue(['filename']));
+    //die();
+    if ($path = $form_state->getValue('filename')) {
+      try {
+        $archiver = new ArchiveTar($path, 'gz');
+        $files = [];
+        foreach ($archiver->listContent() as $file) {
+          $files[] = $file['filename'];
+        }
+
+        $archiver->extractList($files, config_get_config_directory(CONFIG_SYNC_DIRECTORY));
+
+        drupal_set_message($this->t('Your configuration files were successfully uploaded and are ready for import.'));
+
+        $form_state->setRedirect('demo.config_sync');
+      }
+      catch (\Exception $e) {
+        drupal_set_message($this->t('Could not extract the contents of the tar file. The error message is <em>@message</em>', ['@message' => $e->getMessage()]), 'error');
+      }
+      //drupal_unlink($path);
+    }
+  }
+   // $form_state->setRedirect('demo.config_sync');
+
+    //_demo_reset($form_state->getValue(['filename']));
 
     // Do not redirect from the reset confirmation form by default, as it is
     // likely that the user wants to reset all over again (e.g., keeping the
     // browser tab open).
-  }
+  
 
   /**
    *

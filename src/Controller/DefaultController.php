@@ -4,8 +4,8 @@ namespace Drupal\demo\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-//use Drupal\demo\demobase;
 
+// Use Drupal\demo\demobase;.
 /**
  * Default controller for the demo module.
  */

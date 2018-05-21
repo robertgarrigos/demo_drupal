@@ -13,4 +13,3 @@ demo.manage_config:
   title: Configurations
   description: 'Create Configuration snapshots and reset the site.'
   parent: demo.manage_snapshots
-  

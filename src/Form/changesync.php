@@ -65,7 +65,7 @@ class changesync extends FormBase {
   /**
    * The configuration manager.
    *
-   * @var \Drupal\Core\Config\ConfigManagerInterface;
+   * @var \Drupal\Core\Config\ConfigManagerInterface
    */
   protected $configManager;
 
@@ -215,12 +215,12 @@ class changesync extends FormBase {
         sort($change_list);
         $message = [
           [
-            '#markup' => $this->t('The following items in your active configuration have changes since the last import that may be lost on the next import.')
+            '#markup' => $this->t('The following items in your active configuration have changes since the last import that may be lost on the next import.'),
           ],
           [
             '#theme' => 'item_list',
             '#items' => $change_list,
-          ]
+          ],
         ];
         drupal_set_message($this->renderer->renderPlain($message), 'warning');
       }
@@ -296,7 +296,7 @@ class changesync extends FormBase {
               'class' => ['use-ajax'],
               'data-dialog-type' => 'modal',
               'data-dialog-options' => json_encode([
-                'width' => 700
+                'width' => 700,
               ]),
             ],
           ];

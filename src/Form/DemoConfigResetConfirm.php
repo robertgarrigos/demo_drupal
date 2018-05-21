@@ -49,7 +49,6 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Reset site to chosen snapshot.
-    //die();
     if ($path = $form_state->getValue('filename')) {
       try {
         $archiver = new ArchiveTar($path, 'gz');
@@ -67,12 +66,8 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
       catch (\Exception $e) {
         drupal_set_message($this->t('Could not extract the contents of the tar file. The error message is <em>@message</em>', ['@message' => $e->getMessage()]), 'error');
       }
-      //drupal_unlink($path);
     }
   }
-   // $form_state->setRedirect('demo.config_sync');
-
-    //_demo_reset($form_state->getValue(['filename']));
 
     // Do not redirect from the reset confirmation form by default, as it is
     // likely that the user wants to reset all over again (e.g., keeping the

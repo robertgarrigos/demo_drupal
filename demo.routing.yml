@@ -6,7 +6,6 @@ demo.snapshots:
   requirements:
     _permission: 'access administration pages'
 
-
 demo.manage_form:
   path: /admin/structure/snapshots/demo
   defaults:

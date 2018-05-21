@@ -1,13 +1,9 @@
 <?php
 
 namespace Drupal\demo\Form;
-use Drupal\Core\Archiver\ArchiveTar;
-use Drupal\Core\Config\StorageInterface;
+
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Form\ConfirmFormBase;
-use Drupal\Core\Url;
 
 /**
  *
@@ -39,7 +35,7 @@ class deleteConfig extends FormBase {
       $form['dump']['#access'] = FALSE;
       $form['actions']['#access'] = FALSE;
     }
-    
+
     return $form;
   }
 
@@ -54,11 +50,7 @@ class deleteConfig extends FormBase {
    *
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // $files = demo_get_fileconfig($form_state->getValue('filename'));
-    
-    // $file=$form_state->getValue('filename');
-    // unlink($file);
-    // drupal_set_message(t('Snapshot has been deleted.'));
-    // $form_state->setRedirect('demo.delete_config_confirm');
+
   }
+
 }

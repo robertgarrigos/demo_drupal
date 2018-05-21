@@ -25,8 +25,8 @@ class ConfigDeleteConfirm extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
-    $filename=$fileconfig['dumppath'].'/'.$filename;
-  
+    $filename = $fileconfig['dumppath'] . '/' . $filename;
+
     if (!file_exists($filename)) {
       drupal_set_message(t('File not found'), 'error');
     }
@@ -48,7 +48,7 @@ class ConfigDeleteConfirm extends ConfirmFormBase {
    *
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $filename=$form_state->getValue('filename');
+    $filename = $form_state->getValue('filename');
     unlink($filename);
     drupal_set_message(t('Snapshot %title has been deleted.', [
       '%title' => $form_state->getValue(['filename']),

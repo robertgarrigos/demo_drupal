@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
 /**
  * Returns responses for config module routes.
  */
@@ -75,7 +75,7 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
    * @param \Drupal\Core\Config\StorageInterface $target_storage
    *   The target storage.
    * @param \Drupal\Core\Config\StorageInterface $source_storage
-   *   The source storage
+   *   The source storage.
    * @param \Drupal\system\FileDownloadController $file_download_controller
    *   The file download controller.
    */
@@ -91,19 +91,17 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
    * Downloads a tarball of the site configuration.
    */
   public function downloadExport() {
-    //file_unmanaged_delete(file_directory_temp() . '/config.tar.gz');
     $fileconfig = 'private://' . \Drupal::config('demo.settings')->get('demo_dump_path', 'demo');
-    //$date = Datetime::createFromFormat('U', $request->server->get('REQUEST_TIME'));
     $request = \Drupal::request();
-    $date_string = date("Y-m-d-H-i"); //'hhh';//$date->format('Y-m-d-H-i');
+    $date_string = date("Y-m-d-H-i");
     $hostname = str_replace('.', '-', $request->getHttpHost());
     $filename = '/config' . '-' . $hostname . '-' . $date_string . '.tar.gz';
-    
+
     $archiver = new ArchiveTar($fileconfig . $filename, 'gz');
     // Get raw configuration data without overrides.
     foreach ($this->configManager->getConfigFactory()->listAll() as $name) {
       $archiver->addString("$name.yml", Yaml::encode($this->configManager->getConfigFactory()->get($name)->getRawData()));
-    } 
+    }
     // Get all override data from the remaining collections.
     foreach ($this->targetStorage->getAllCollectionNames() as $collection) {
       $collection_storage = $this->targetStorage->createCollection($collection);
@@ -113,13 +111,12 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
     }
 
     $request = new Request(['file' => $filename]);
- 
-    
+
     if (!file_prepare_directory($fileconfig, FILE_CREATE_DIRECTORY)) {
       return FALSE;
     }
-    //----------------------------------------------------------------------
-    $scheme='private';
+    // ----------------------------------------------------------------------.
+    $scheme = 'private';
     $target = $request->query->get('file');
 
     // Merge remaining path arguments into relative file path.
@@ -127,13 +124,13 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
 
     if (file_stream_wrapper_valid_scheme($scheme)) {
       // Let other modules provide headers and controls access to the file.
-      $headers = $this->moduleHandler()->invoke('demo','file_download', [$uri]);
+      $headers = $this->moduleHandler()->invoke('demo', 'file_download', [$uri]);
       foreach ($headers as $result) {
         if ($result == -1) {
           throw new AccessDeniedHttpException();
         }
       }
-      
+
       if (count($headers)) {
         // \Drupal\Core\EventSubscriber\FinishResponseSubscriber::onRespond()
         // sets response as not cacheable if the Cache-Control header is not
@@ -148,10 +145,7 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
 
     throw new NotFoundHttpException();
 
-
-    //----------------------------------------------------------------------
-
-    //return $this->fileDownloadController->download($request);
+    // ----------------------------------------------------------------------.
   }
 
   /**
@@ -183,30 +177,29 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
     $build['#attached']['library'][] = 'system/diff';
 
     $build['diff'] = [
-    '#type' => 'table',
-    '#attributes' => [
-    'class' => ['diff'],
-    ],
-    '#header' => [
-    ['data' => t('Active'), 'colspan' => '2'],
-    ['data' => t('Staged'), 'colspan' => '2'],
-    ],
-    '#rows' => $this->diffFormatter->format($diff),
+      '#type' => 'table',
+      '#attributes' => [
+        'class' => ['diff'],
+      ],
+      '#header' => [
+      ['data' => t('Active'), 'colspan' => '2'],
+      ['data' => t('Staged'), 'colspan' => '2'],
+      ],
+      '#rows' => $this->diffFormatter->format($diff),
     ];
 
     $build['back'] = [
-    '#type' => 'link',
-    '#attributes' => [
-    'class' => [
-    'dialog-cancel',
-    ],
-    ],
-    '#title' => "Back to 'Synchronize configuration' page.",
-    '#url' => Url::fromRoute('config.sync'),
+      '#type' => 'link',
+      '#attributes' => [
+        'class' => [
+          'dialog-cancel',
+        ],
+      ],
+      '#title' => "Back to 'Synchronize configuration' page.",
+      '#url' => Url::fromRoute('config.sync'),
     ];
 
     return $build;
   }
 
 }
-

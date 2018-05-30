@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * Returns demo_manage_form where you can see reset dates and all.
  */
 class DemoManageForm extends FormBase {
 
@@ -18,7 +18,7 @@ class DemoManageForm extends FormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['status'] = [

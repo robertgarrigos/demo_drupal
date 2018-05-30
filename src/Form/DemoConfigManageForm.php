@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * This class returns the demo_config_manage_form in which there will be a button to create the snapshot of the configuration.
  */
 class DemoConfigManageForm extends FormBase {
 
@@ -18,7 +18,7 @@ class DemoConfigManageForm extends FormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
@@ -38,7 +38,7 @@ class DemoConfigManageForm extends FormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($form_state->setRedirect('demo.export_download')) {

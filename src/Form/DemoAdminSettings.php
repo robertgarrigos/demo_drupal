@@ -8,7 +8,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
 /**
- *
+ * This class will return the form demo_admin_settings.
  */
 class DemoAdminSettings extends ConfigFormBase {
 
@@ -20,7 +20,7 @@ class DemoAdminSettings extends ConfigFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
@@ -55,7 +55,7 @@ class DemoAdminSettings extends ConfigFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
   }

@@ -3,11 +3,13 @@ demo.manage_form:
   title: List
   weight: -10
   base_route: demo.manage_form
+
 demo.reset_confirm:
   route_name: demo.reset_confirm
   title: Reset
   weight: 3
   base_route: demo.manage_form
+
 demo.admin_settings:
   route_name: demo.admin_settings
   title: Settings
@@ -19,11 +21,13 @@ demo.manage_config_form:
   title: Create
   weight: -10
   base_route: demo.manage_config_form
+
 demo.reset_config_confirm:
   route_name: demo.reset_config_confirm
   title: Reset
   weight: 3
   base_route: demo.manage_config_form
+
 demo.delete_config_confirm:
   route_name: demo.delete_config_confirm
   title: Delete

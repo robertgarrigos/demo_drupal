@@ -10,7 +10,7 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Url;
 
 /**
- *
+ * This class return the form demo_config_reset_confirm to make sure that you are about to reset your configuration.
  */
 class DemoConfigResetConfirm extends ConfirmFormBase {
 
@@ -22,7 +22,7 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['dump'] = demo_get_config_dumps();
@@ -45,7 +45,7 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Reset site to chosen snapshot.
@@ -75,7 +75,7 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
   
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function getCancelUrl() {
     return new Url('demo.manage_form');

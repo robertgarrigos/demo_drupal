@@ -7,7 +7,7 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Url;
 
 /**
- *
+ * This class return the demo_delete_confirm, a form where you will be asked to be sure to delete your config file.
  */
 class DemoDeleteConfirm extends ConfirmFormBase {
 
@@ -21,7 +21,7 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   public $filename;
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
@@ -44,7 +44,7 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $files = demo_get_fileconfig($form_state->getValue(['filename']));

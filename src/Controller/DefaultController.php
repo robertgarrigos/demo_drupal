@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class DefaultController extends ControllerBase {
 
   /**
-   *
+   * funtion to autocomplete the demo dump and save it to the dumppath declared in settings.php
    */
   public function demo_autocomplete($string = '') {
     $matches = [];
@@ -27,7 +27,7 @@ class DefaultController extends ControllerBase {
   }
 
   /**
-   *
+   * Funtion to download the dump file.
    */
   public function demo_download($filename, $type) {
     $fileconfig = demo_get_fileconfig($filename);

@@ -1,22 +1,15 @@
 <?php
 
-/**
- * @file
- */
-
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Database\Database;
 
-/**
- * @file
- */
 define('DEMO_DUMP_VERSION', '1.1');
 define('VERSION', '8');
 
 /**
- * Get the file directory information .
+ * Get the file directory information.
  */
 function demo_get_fileconfig($filename = 'Set default value') {
   $fileconfig = [];

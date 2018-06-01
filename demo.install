@@ -1,10 +1,6 @@
 <?php
 
 /**
- * @file
- */
-
-/**
  * Implements hook_uninstall().
  */
 function demo_uninstall() {

@@ -19,7 +19,7 @@ function demo_get_fileconfig($filename = 'Set default value') {
     // @todo Temporarily throwing a form error here.
     // Don't break demo_profile.
     if (!defined('MAINTENANCE_MODE')) {
-      drupal_set_message(t('The <a href="../config/media/file-system">private filesystem</a> must be configured in order to create or load snapshots.'
+      drupal_set_message(t('The <a href="../../config/media/file-system">private filesystem</a> must be configured in order to create or load snapshots.'
        ), 'warning');
     }
     return FALSE;

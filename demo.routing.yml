@@ -28,6 +28,7 @@ demo.export_download:
     _controller: '\Drupal\demo\Controller\ConfigDownloadController::downloadExport'
   requirements:
     _permission: 'export configuration'
+
 demo.dump_form:
   path: /admin/structure/snapshots/demo/dump
   defaults:
@@ -35,6 +36,7 @@ demo.dump_form:
     _form: \Drupal\demo\Form\DemoDumpForm
   requirements:
     _permission: 'administer demo settings'
+
 demo.reset_confirm:
   path: /admin/structure/snapshots/demo/reset
   defaults:
@@ -84,7 +86,7 @@ demo.reset_config_confirm:
 demo.config_sync:
   path: '/admin/structure/snapshots/config/configuration'
   defaults:
-    _form: '\Drupal\demo\Form\changesync'
+    _form: '\Drupal\demo\Form\ChangeSync'
     _title: 'Synchronize'
   requirements:
     _permission: 'administer demo settings'
@@ -92,7 +94,7 @@ demo.config_sync:
 demo.delete_config_confirm:
   path: '/admin/structure/snapshots/config/delete'
   defaults:
-    _form: '\Drupal\demo\Form\deleteConfig'
+    _form: '\Drupal\demo\Form\DeleteConfig'
     _title: 'Delete'
   requirements:
     _permission: 'administer demo settings'

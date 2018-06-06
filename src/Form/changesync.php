@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Construct the storage changes in a configuration synchronization form.
  */
-class changesync extends FormBase {
+class ChangeSync extends FormBase {
 
   /**
    * The database lock object.

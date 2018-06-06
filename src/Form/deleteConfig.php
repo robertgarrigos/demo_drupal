@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  *
  */
-class deleteConfig extends FormBase {
+class DeleteConfig extends FormBase {
 
   /**
    * {@inheritdoc}

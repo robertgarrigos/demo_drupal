@@ -68,12 +68,9 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
       }
     }
   }
-
     // Do not redirect from the reset confirmation form by default, as it is
     // likely that the user wants to reset all over again (e.g., keeping the
     // browser tab open).
-  
-
   /**
    * {@inheritdoc}
    */

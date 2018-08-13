@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- *
+ * Handles the deletion of config sanpshots
  */
 class DeleteConfig extends FormBase {
 
@@ -18,7 +18,7 @@ class DeleteConfig extends FormBase {
   }
 
   /**
-   *
+   * form to delete config snapshots.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
@@ -47,7 +47,7 @@ class DeleteConfig extends FormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 

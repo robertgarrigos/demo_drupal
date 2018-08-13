@@ -7,7 +7,7 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Url;
 
 /**
- *
+ *  confirms the deletion of config deletion
  */
 class ConfigDeleteConfirm extends ConfirmFormBase {
 
@@ -21,7 +21,7 @@ class ConfigDeleteConfirm extends ConfirmFormBase {
   public $filename;
 
   /**
-   *
+   * {@inheritdoc}.
    */
   public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
@@ -45,7 +45,7 @@ class ConfigDeleteConfirm extends ConfirmFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $filename = $form_state->getValue('filename');

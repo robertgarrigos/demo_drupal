@@ -22,7 +22,6 @@ class DemoConfigManageForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    // $form['dump'] = demo_get_config_dumps();
     $form['actions'] = ['#type' => 'actions'];
     $form['description'] = [
       '#type' => 'item',

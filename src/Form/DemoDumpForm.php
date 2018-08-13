@@ -18,7 +18,7 @@ class DemoDumpForm extends FormBase {
   }
 
   /**
-   *
+   * form to create database snapshots.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
@@ -52,7 +52,7 @@ class DemoDumpForm extends FormBase {
   }
 
   /**
-   *
+   * Validate form values.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (!$form_state->getValue(['confirm'])) {
@@ -69,7 +69,7 @@ class DemoDumpForm extends FormBase {
   }
 
   /**
-   *
+   * create the database.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {

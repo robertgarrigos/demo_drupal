@@ -5,7 +5,6 @@ namespace Drupal\demo\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-// Use Drupal\demo\demobase;.
 /**
  * Default controller for the demo module.
  */
@@ -43,5 +42,4 @@ class DefaultController extends ControllerBase {
     ];
     return new BinaryFileResponse($fileconfig[$type . 'file'], 200, $headers);
   }
-
 }

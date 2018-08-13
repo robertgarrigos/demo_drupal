@@ -109,19 +109,15 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
         $archiver->addString(str_replace('.', '/', $collection) . "/$name.yml", Yaml::encode($collection_storage->read($name)));
       }
     }
-
     $request = new Request(['file' => $filename]);
-
     if (!file_prepare_directory($fileconfig, FILE_CREATE_DIRECTORY)) {
       return FALSE;
     }
     // ----------------------------------------------------------------------.
     $scheme = 'private';
     $target = $request->query->get('file');
-
     // Merge remaining path arguments into relative file path.
     $uri = $scheme . '://demo' . $target;
-
     if (file_stream_wrapper_valid_scheme($scheme)) {
       // Let other modules provide headers and controls access to the file.
       $headers = $this->moduleHandler()->invoke('demo', 'file_download', [$uri]);
@@ -130,7 +126,6 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
           throw new AccessDeniedHttpException();
         }
       }
-
       if (count($headers)) {
         // \Drupal\Core\EventSubscriber\FinishResponseSubscriber::onRespond()
         // sets response as not cacheable if the Cache-Control header is not
@@ -139,12 +134,9 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
         drupal_set_message(t('Snapshot has been created.'));
         return $this->redirect('demo.manage_config');
       }
-
       throw new AccessDeniedHttpException();
     }
-
     throw new NotFoundHttpException();
-
     // ----------------------------------------------------------------------.
   }
 
@@ -169,13 +161,10 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
     }
     $diff = $this->configManager->diff($this->targetStorage, $this->sourceStorage, $source_name, $target_name, $collection);
     $this->diffFormatter->show_header = FALSE;
-
     $build = [];
-
     $build['#title'] = t('View changes of @config_file', ['@config_file' => $source_name]);
     // Add the CSS for the inline diff.
     $build['#attached']['library'][] = 'system/diff';
-
     $build['diff'] = [
       '#type' => 'table',
       '#attributes' => [
@@ -187,7 +176,6 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
       ],
       '#rows' => $this->diffFormatter->format($diff),
     ];
-
     $build['back'] = [
       '#type' => 'link',
       '#attributes' => [
@@ -198,8 +186,6 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
       '#title' => "Back to 'Synchronize configuration' page.",
       '#url' => Url::fromRoute('config.sync'),
     ];
-
     return $build;
   }
-
 }

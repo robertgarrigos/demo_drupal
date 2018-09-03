@@ -450,18 +450,6 @@ function _demo_table_is_view($table) {
 }
 
 /**
- * Load database specific functions.
- */
-function demo_load_include() {
-  $engine = db_driver();
-  if (!module_load_include('inc', 'demo', 'database_' . $engine . '_dump')) {
-    drupal_set_message(t('@database is not supported yet.', ['@database' => ucfirst($engine)]), 'error');
-    return FALSE;
-  }
-  return TRUE;
-}
-
-/**
  * Returns a list of tables in the active database.
  *
  * Only returns tables whose prefix matches the configured one (or ones, if
@@ -469,11 +457,6 @@ function demo_load_include() {
  */
 function demo_enum_tables() {
   $tables = [];
-
-  // Load database specific functions.
-  if (!demo_load_include()) {
-    return FALSE;
-  }
 
   $connection = Database::getConnection();
   $db_options = $connection->getConnectionOptions();
@@ -568,11 +551,6 @@ function demo_enum_tables() {
  *     - data: Whether to dump the table data.
  */
 function _demo_dump($options) {
-  // Load database specific functions.
-  if (!demo_load_include()) {
-    return FALSE;
-  }
-
   // Increase PHP's max_execution_time for large dumps.
   drupal_set_time_limit(600);
 
@@ -716,11 +694,6 @@ function demo_config_delete_submit($form, &$form_state) {
  *   Whether to output status messages.
  */
 function _demo_reset($filename, $verbose = TRUE) {
-  // Load database specific functions.
-  if (!demo_load_include()) {
-    return FALSE;
-  }
-
   // Increase PHP's max_execution_time for large dumps.
   drupal_set_time_limit(600);
 

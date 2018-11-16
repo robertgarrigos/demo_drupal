@@ -564,6 +564,11 @@ function _demo_dump($options) {
   $fileconfig = demo_get_fileconfig($info['filename']);
   \Drupal::moduleHandler()->alter('demo_dump', $options, $info, $fileconfig);
 
+  // Set default snapshot
+  if ($options['default']) {
+    \Drupal::service('config.factory')->getEditable('demo.settings')->set('demo_dump_cron', $info['filename'])->save();
+  }
+
   // Perform database dump.
   if (!demo_dump_db($fileconfig['sqlfile'], $options)) {
     return FALSE;
@@ -814,12 +819,12 @@ function _demo_reset($filename, $verbose = TRUE) {
 /**
  * Implementation of hook_cron().
  */
-function demo_reset_cron() {
+function demo_cron() {
   if ($interval = \Drupal::config('demo.settings')->get('demo_reset_interval', 0)) {
     // See if it's time for a reset.
-    $request_time = \Drupal::request()->server->getRequestTime();
+    $request_time = \Drupal::time()->getRequestTime();
     if ((REQUEST_TIME - $interval) >= \Drupal::config('demo.settings')->get('demo_reset_last', 0)) {
-      demo_reset(\Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value'), FALSE);
+      _demo_reset(\Drupal::config('demo.settings')->get('demo_dump_cron', 'Set default value'), FALSE);
     }
   }
 }

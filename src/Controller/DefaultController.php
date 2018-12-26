@@ -4,16 +4,19 @@ namespace Drupal\demo\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Default controller for the demo module.
  */
-class DefaultController extends ControllerBase {
+class DefaultController extends ControllerBase
+{
 
   /**
    * funtion to autocomplete the demo dump and save it to the dumppath declared in settings.php
    */
-  public function demo_autocomplete($string = '') {
+  public function demo_autocomplete($string = '')
+  {
     $matches = [];
     if ($string && $fileconfig = demo_get_fileconfig()) {
       $string = preg_quote($string);
@@ -22,13 +25,15 @@ class DefaultController extends ControllerBase {
         $matches[$file->name] = check_plain($file->name);
       }
     }
-    drupal_json_output($matches);
+    return new JsonResponse($matches, 200);
+
   }
 
   /**
    * Funtion to download the dump file.
    */
-  public function demo_download($filename, $type) {
+  public function demo_download($filename, $type)
+  {
     $fileconfig = demo_get_fileconfig($filename);
     if (!isset($fileconfig[$type . 'file']) || !file_exists($fileconfig[$type . 'file'])) {
       return MENU_NOT_FOUND;

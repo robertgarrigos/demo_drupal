@@ -1,4 +1,4 @@
-name: 'Demonstration site'
+name: 'Demonstration Site'
 description: 'Create snapshots of the database & configuration and reset the site for demonstration or testing purposes.'
 package: Development
 type: module

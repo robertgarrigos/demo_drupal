@@ -86,7 +86,7 @@ demo.reset_config_confirm:
 demo.config_sync:
   path: '/admin/structure/snapshots/config/configuration'
   defaults:
-    _form: '\Drupal\demo\Form\ChangeSync'
+    _form: '\Drupal\demo\Form\ChangeSyncForm'
     _title: 'Synchronize'
   requirements:
     _permission: 'administer demo settings'

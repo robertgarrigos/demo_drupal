@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Handles the deletion of config sanpshots
  */
-class DeleteConfig extends FormBase {
+class DeleteConfigForm extends FormBase {
 
   /**
    * {@inheritdoc}

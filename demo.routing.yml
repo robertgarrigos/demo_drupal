@@ -20,7 +20,7 @@ demo.manage_config:
     _title: Configuration Snapshot
     _form: \Drupal\demo\Form\DemoConfigManageForm
   requirements:
-    _permission: 'administer demo settings'    
+    _permission: 'administer demo settings'
 
 demo.export_download:
   path: '/admin/structure/snapshots/config/export-download'
@@ -94,7 +94,7 @@ demo.config_sync:
 demo.delete_config_confirm:
   path: '/admin/structure/snapshots/config/delete'
   defaults:
-    _form: '\Drupal\demo\Form\DeleteConfig'
+    _form: '\Drupal\demo\Form\DeleteConfigForm'
     _title: 'Delete'
   requirements:
     _permission: 'administer demo settings'

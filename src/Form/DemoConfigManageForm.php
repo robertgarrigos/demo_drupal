@@ -41,10 +41,10 @@ class DemoConfigManageForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($form_state->setRedirect('demo.export_download')) {
-      drupal_set_message(t('Snapshot has been created.'));
+      \Drupal::messenger()->addMessage(t('Snapshot has been created.'));
     }
     else {
-      drupal_set_message(t('Snapshot not created.'));
+      \Drupal::messenger()->addMessage(t('Snapshot not created.'));
     }
   }
 

@@ -26,7 +26,7 @@ class DemoDeleteConfirm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $filename = NULL) {
     $fileconfig = demo_get_fileconfig($filename);
     if (!file_exists($fileconfig['infofile'])) {
-      drupal_set_message(t('File not found'), 'error');
+      \Drupal::messenger()->addMessage(t('File not found'), 'error');
     }
 
     $form['filename'] = [
@@ -50,7 +50,7 @@ class DemoDeleteConfirm extends ConfirmFormBase {
     $files = demo_get_fileconfig($form_state->getValue(['filename']));
     unlink($files['sqlfile']);
     unlink($files['infofile']);
-    drupal_set_message(t('Snapshot %title has been deleted.', [
+    \Drupal::messenger()->addMessage(t('Snapshot %title has been deleted.', [
       '%title' => $form_state->getValue(['filename']),
     ]));
     $form_state->setRedirect('demo.manage_form');

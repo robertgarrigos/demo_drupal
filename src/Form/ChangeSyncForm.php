@@ -192,7 +192,7 @@ class ChangeSync extends FormBase {
       return $form;
     }
     elseif (!$storage_comparer->validateSiteUuid()) {
-      drupal_set_message($this->t('The staged configuration cannot be imported, because it originates from a different site than this site. You can only synchronize configuration between cloned instances of this site.'), 'error');
+      \Drupal::messenger()->addError($this->t('The staged configuration cannot be imported, because it originates from a different site than this site. You can only synchronize configuration between cloned instances of this site.'));
       $form['actions']['#access'] = FALSE;
       return $form;
     }
@@ -222,7 +222,7 @@ class ChangeSync extends FormBase {
             '#items' => $change_list,
           ],
         ];
-        drupal_set_message($this->renderer->renderPlain($message), 'warning');
+        \Drupal::messenger()->addWarning($this->renderer->renderPlain($message));
       }
     }
 
@@ -331,7 +331,7 @@ class ChangeSync extends FormBase {
       $this->getStringTranslation()
     );
     if ($config_importer->alreadyImporting()) {
-      drupal_set_message($this->t('Another request may be synchronizing configuration already.'));
+      \Drupal::messenger()->addMessage($this->t('Another request may be synchronizing configuration already.'));
     }
     else {
       try {
@@ -353,9 +353,9 @@ class ChangeSync extends FormBase {
       }
       catch (ConfigImporterException $e) {
         // There are validation errors.
-        drupal_set_message($this->t('The configuration cannot be imported because it failed validation for the following reasons:'), 'error');
+        \Drupal::messenger()->addError($this->t('The configuration cannot be imported because it failed validation for the following reasons:'));
         foreach ($config_importer->getErrors() as $message) {
-          drupal_set_message($message, 'error');
+          \Drupal::messenger()->addMessage($message);
         }
       }
     }
@@ -396,13 +396,13 @@ class ChangeSync extends FormBase {
     if ($success) {
       if (!empty($results['errors'])) {
         foreach ($results['errors'] as $error) {
-          drupal_set_message($error, 'error');
+          \Drupal::messenger()->addMessage($error, 'error');
           \Drupal::logger('config_sync')->error($error);
         }
-        drupal_set_message(\Drupal::translation()->translate('The configuration was imported with errors.'), 'warning');
+        \Drupal::messenger()->addMessage(\Drupal::translation()->translate('The configuration was imported with errors.'), 'warning');
       }
       else {
-        drupal_set_message(\Drupal::translation()->translate('The configuration was imported successfully.'));
+        \Drupal::messenger()->addMessage(\Drupal::translation()->translate('The configuration was imported successfully.'));
       }
     }
     else {
@@ -410,7 +410,7 @@ class ChangeSync extends FormBase {
       // $operations contains the operations that remained unprocessed.
       $error_operation = reset($operations);
       $message = \Drupal::translation()->translate('An error occurred while processing %error_operation with arguments: @arguments', ['%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)]);
-      drupal_set_message($message, 'error');
+      \Drupal::messenger()->addMessage($message, 'error');
     }
   }
 

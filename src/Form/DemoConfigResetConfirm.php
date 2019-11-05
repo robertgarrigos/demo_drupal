@@ -27,7 +27,7 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['dump'] = demo_get_config_dumps();
 
-    drupal_set_message(t('This action cannot be undone.'), 'warning');
+    \Drupal::messenger()->addMessage(t('This action cannot be undone.'), 'warning');
 
     $form['submit'] = [
       '#type' => 'submit',
@@ -59,12 +59,12 @@ class DemoConfigResetConfirm extends ConfirmFormBase {
 
         $archiver->extractList($files, config_get_config_directory(CONFIG_SYNC_DIRECTORY));
 
-        drupal_set_message($this->t('Your configuration files were successfully uploaded and are ready for import.'));
+        \Drupal::messenger()->addMessage($this->t('Your configuration files were successfully uploaded and are ready for import.'));
 
         $form_state->setRedirect('demo.config_sync');
       }
       catch (\Exception $e) {
-        drupal_set_message($this->t('Could not extract the contents of the tar file. The error message is <em>@message</em>', ['@message' => $e->getMessage()]), 'error');
+        \Drupal::messenger()->addMessage($this->t('Could not extract the contents of the tar file. The error message is <em>@message</em>', ['@message' => $e->getMessage()]), 'error');
       }
     }
   }

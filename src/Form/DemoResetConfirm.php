@@ -24,7 +24,7 @@ class DemoResetConfirm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['dump'] = demo_get_dumps();
 
-    drupal_set_message(t('This action cannot be undone.'), 'warning');
+    \Drupal::messenger()->addMessage(t('This action cannot be undone.'), 'warning');
 
     $form['submit'] = [
       '#type' => 'submit',

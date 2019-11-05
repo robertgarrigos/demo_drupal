@@ -73,7 +73,7 @@ class DemoDumpForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($fileconfig = _demo_dump($form_state->getValue(['dump']))) {
-      drupal_set_message(t('Snapshot %filename has been created.', [
+      \Drupal::messenger()->addMessage(t('Snapshot %filename has been created.', [
         '%filename' => $form_state->getValue(['dump', 'filename']),
       ]));
     }

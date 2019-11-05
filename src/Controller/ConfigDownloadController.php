@@ -131,7 +131,7 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
         // sets response as not cacheable if the Cache-Control header is not
         // already modified. We pass in FALSE for non-private schemes for the
         // $public parameter to make sure we don't change the headers.
-        drupal_set_message(t('Snapshot has been created.'));
+        \Drupal::messenger()->addMessage(t('Snapshot has been created.'));
         return $this->redirect('demo.manage_config');
       }
       throw new AccessDeniedHttpException();

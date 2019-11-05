@@ -24,7 +24,7 @@ class DemoAdminSettings extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    drupal_set_message(t('Snapshot file system path: private://' . \Drupal::state()->get('demo_dump_path', 'demo')), 'warning');
+    \Drupal::messenger()->addMessage(t('Snapshot file system path: private://' . \Drupal::state()->get('demo_dump_path', 'demo')), 'warning');
     $intervals = [
     // 0, 5, 10, 15, 30 minutes.
       0, 300, 600, 900, 1800,

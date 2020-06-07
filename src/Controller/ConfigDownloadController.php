@@ -2,6 +2,7 @@
 
 namespace Drupal\demo\Controller;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Archiver\ArchiveTar;
 use Drupal\Core\Config\ConfigManagerInterface;
@@ -110,7 +111,7 @@ class ConfigDownloadController extends ControllerBase implements ContainerInject
       }
     }
     $request = new Request(['file' => $filename]);
-    if (!file_prepare_directory($fileconfig, FILE_CREATE_DIRECTORY)) {
+    if (!\Drupal::service('file_system')->prepareDirectory($fileconfig, FileSystemInterface::CREATE_DIRECTORY)) {
       return FALSE;
     }
     // ----------------------------------------------------------------------.

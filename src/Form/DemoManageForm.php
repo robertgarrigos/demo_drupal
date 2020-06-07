@@ -40,7 +40,7 @@ class DemoManageForm extends FormBase {
     $form['status']['reset_last'] = [
       '#type' => 'item',
       '#title' => t('Last reset'),
-      '#markup' => $reset_date ? format_date($reset_date) : t('Never'),
+      '#markup' => $reset_date ? \Drupal::service('date.formatter')->format($reset_date) : t('Never'),
     ];
 
     $form['dump'] = demo_get_dumps();

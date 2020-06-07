@@ -2,6 +2,7 @@
 
 namespace Drupal\demo\Form;
 
+use Drupal\Core\Link;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -48,7 +49,7 @@ class DemoAdminSettings extends ConfigFormBase {
       '#default_value' => \Drupal::config('demo.settings')->get('demo_reset_interval', 0),
       '#options' => $options,
       '#empty_value' => 0,
-      '#description' => t('Requires a ' . \Drupal::l(t('default snapshot'), $demo_manage_form_url) . ' and ' . \Drupal::l(t('cron'), $cron_url) . ' to run in the configured interval.'),
+      '#description' => t('Requires a ' . Link::fromTextAndUrl(t('default snapshot'), $demo_manage_form_url) . ' and ' . Link::fromTextAndUrl(t('cron'), $cron_url) . ' to run in the configured interval.'),
     ];
 
     return parent::buildForm($form, $form_state);

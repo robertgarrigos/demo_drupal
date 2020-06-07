@@ -20,7 +20,7 @@ class DefaultController extends ControllerBase
     $matches = [];
     if ($string && $fileconfig = demo_get_fileconfig()) {
       $string = preg_quote($string);
-      $files = file_scan_directory($fileconfig['dumppath'], '/' . $string . '.*\.info$/');
+      $files = \Drupal::service('file_system')->scanDirectory($fileconfig['dumppath'], '/' . $string . '.*\.info$/');
       foreach ($files as $file) {
         $matches[$file->name] = check_plain($file->name);
       }

@@ -468,7 +468,9 @@ function demo_get_dumps() {
   }
 
   // Sort snapshots by date (ascending file modification time).
-  uasort($files, create_function('$a, $b', 'return ($a->filemtime < $b->filemtime);'));
+  uasort($files, function ($a, $b) {
+    return ($a->filemtime < $b->filemtime);
+  });
 
   $element = array(
     '#type' => 'radios',
@@ -532,7 +534,8 @@ function demo_get_info($filename, $field = NULL) {
   $info = array();
 
   if (file_exists($filename)) {
-    $info = parse_ini_file($filename);
+    $absolute_file_path = drupal_realpath($filename);
+    $info = parse_ini_file($absolute_file_path);
 
     if (isset($info['modules'])) {
       $info['modules'] = explode(" ", $info['modules']);

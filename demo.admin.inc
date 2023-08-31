@@ -532,7 +532,8 @@ function demo_get_info($filename, $field = NULL) {
   $info = array();
 
   if (file_exists($filename)) {
-    $info = parse_ini_file($filename);
+    $absolute_file_path = drupal_realpath($filename);
+    $info = parse_ini_file($absolute_file_path);
 
     if (isset($info['modules'])) {
       $info['modules'] = explode(" ", $info['modules']);
